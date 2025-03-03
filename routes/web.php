@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
+require __DIR__ . '/web/customer/route.php';
+
+require __DIR__ . '/web/admin/route.php';
