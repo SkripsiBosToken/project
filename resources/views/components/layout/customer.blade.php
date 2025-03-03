@@ -11,7 +11,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="container mx-auto">
+<body class="container mx-auto px-4 md:px-0">
+    <x-header.customer />
     {{ $slot }}
 </body>
 
