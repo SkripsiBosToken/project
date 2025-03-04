@@ -11,9 +11,19 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="container mx-auto px-4 md:px-0">
-    <x-header.customer />
-    {{ $slot }}
+<body>
+    <div class="container mx-auto px-4 md:px-0">
+        <x-header.customer />
+        {{ $slot }}
+    </div>
+
+    <x-button.custom
+        class="px-4 py-4 fixed bottom-8 right-8 bg-primary text-white p-4 rounded-full shadow-lg hover:bg-white hover:text-primary transition-all" href="#">
+        💬
+    </x-button.custom>
+
+
+    <x-footer.custom />
 </body>
 
 </html>
