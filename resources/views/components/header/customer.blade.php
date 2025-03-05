@@ -10,7 +10,7 @@
             class="hidden md:flex md:items-center md:space-x-12 absolute md:static top-16 left-0 w-full md:w-auto bg-white md:bg-transparent shadow-md md:shadow-none p-4 md:p-0 rounded-md flex-col md:flex-row text-center">
             <a href="{{route('home')}}" class="text-primary font-bold text-sm md:text-lg hover:text-white py-2 md:py-0 transition duration-300">Home</a>
             <a href="{{route('about')}}" class="text-primary font-semibold text-sm md:text-lg hover:text-white py-2 md:py-0 transition duration-300">About us</a>
-            <a href="#" class="text-primary font-semibold text-sm md:text-lg hover:text-white py-2 md:py-0 transition duration-300">Catalogue</a>
+            <a href="{{route('catalogue')}}" class="text-primary font-semibold text-sm md:text-lg hover:text-white py-2 md:py-0 transition duration-300">Catalogue</a>
             <a href="{{route('contact')}}" class="text-primary font-semibold text-sm md:text-lg hover:text-white py-2 md:py-0 transition duration-300">Contact Us</a>
 
             <x-button.custom class="px-6 py-2 font-semibold text-sm md:text-lg rounded-md hover:bg-opacity-80"
