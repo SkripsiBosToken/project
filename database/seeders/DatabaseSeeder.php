@@ -75,7 +75,7 @@ class DatabaseSeeder extends Seeder
         DB::table('product_variants')->insert([
             'id' => $product_variant_id_1,
             'name_type' => 'Paket A',
-            'photo' => '["assets/images/image-2.png", "assets/images/image-3.png"]',
+            'photo' => '["/assets/images/image-2.png", "/assets/images/image-3.png"]',
             'description' => 'Terdapat beberapa menu, yaitu : Nasi Padang, Es Buah, Sate Padang, Nasi Goreng.',
             'price' => 123000,
             'stock' => 99,
@@ -86,7 +86,7 @@ class DatabaseSeeder extends Seeder
         DB::table('product_variants')->insert([
             'id' => $product_variant_id_2,
             'name_type' => 'Paket B',
-            'photo' => '["assets/images/image-3.png", "assets/images/image-2.png"]',
+            'photo' => '["/assets/images/image-3.png", "/assets/images/image-2.png"]',
             'description' => 'Terdapat beberapa menu, yaitu : Nasi Padang, Es Buah, Sate Padang, Nasi Goreng.',
             'price' => 124000,
             'stock' => 99,
@@ -97,7 +97,7 @@ class DatabaseSeeder extends Seeder
         DB::table('product_variants')->insert([
             'id' => $product_variant_id_3,
             'name_type' => 'Small',
-            'photo' => '["assets/images/image-3.png", "assets/images/image-3.png"]',
+            'photo' => '["/assets/images/image-3.png", "/assets/images/image-3.png"]',
             'description' => 'Tumpeng nasi kinung dengan barbagai lauk pauk.',
             'price' => 100000,
             'stock' => 99,

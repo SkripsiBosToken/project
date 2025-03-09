@@ -11,7 +11,7 @@
                                 $minPrice = $prices->min();
                                 $maxPrice = $prices->max();
                             @endphp
-                            <x-card.product title="{{ $product->name }}" img="{{ $product->img }}"
+                            <x-card.product title="{{ $product->name }}" img="{{ json_decode($product->product_variants[0]->photo, true)[0] }}"
                                 description="{{ $product->product_variants[0]->description }}" :price="$prices->count() === 1 ? $minPrice : [$minPrice, $maxPrice]"
                                 href="{{ route('catalogue-detail', ['id' => $product->id]) }}" />
                         @endif

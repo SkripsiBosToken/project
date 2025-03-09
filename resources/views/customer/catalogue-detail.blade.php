@@ -3,10 +3,15 @@
         <div class="grid grid-cols-1 md:grid-cols-12 gap-6" x-data="{
             selectedVariant: {{ json_encode($product['product_variants'][0]) }},
             quantity: 1,
+            selectedImageIndex: 0,
             updateVariant(variant) {
                 this.selectedVariant = variant;
                 this.quantity = 1;
+                this.selectedImageIndex = 0;
                 console.log('Selected Variant:', this.selectedVariant);
+            },
+            updateImageIndex(index) {
+                this.selectedImageIndex = index;
             },
             get subtotal() {
                 return this.quantity * this.selectedVariant.price;
@@ -14,7 +19,18 @@
         }" x-init="console.log('Initial Selected Variant:', selectedVariant)">
 
             <div class="flex justify-center items-start col-span-5">
-                <x-image.image-selector :images="json_decode($product['product_variants'][0]->photo)" />
+                <div class="flex flex-col">
+                    <div class="w-full">
+                        <img :src="JSON.parse(selectedVariant.photo)[selectedImageIndex]" alt="Product Image" class="w-full h-96 object-cover rounded-xl">
+                    </div>
+                    <div class="flex mt-2 space-x-2">
+                        <template x-for="(image, index) in JSON.parse(selectedVariant.photo)">
+                            <button @click="updateImageIndex(index)" :class="{'opacity-50': selectedImageIndex !== index}" class="w-16 h-16 rounded-md overflow-hidden">
+                                <img :src="image" :alt="'Product Image ' + index" class="w-full h-full object-cover">
+                            </button>
+                        </template>
+                    </div>
+                </div>
             </div>
 
             <div class="col-span-4">
@@ -23,7 +39,6 @@
                     <p class="mt-2 md:mt-4 text-lg md:text-xl font-semibold text-primary"
                         x-text="new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(selectedVariant.price)">
                     </p>
-
 
                     <div class="mt-4 flex gap-2 flex-wrap">
                         @foreach ($product['product_variants'] as $product_variant)
@@ -43,20 +58,20 @@
             <div class="col-span-3">
                 <div class="p-4 bg-white rounded-xl shadow-md font-poppins">
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center border border-gray-300 rounded-md">
+                        <div class="flex items-center border border-primary-gray rounded-md">
                             <button @click="if (quantity > 1) quantity--"
-                                class="px-3 py-1 text-gray-700 border-r border-gray-300">−</button>
+                                class="px-3 py-1 text-primary border-r border-primary-gray">−</button>
                             <span class="px-4 py-1 text-lg font-semibold" x-text="quantity"></span>
                             <button @click="if (quantity < selectedVariant.stock) quantity++"
                                 class="px-3 py-1 text-primary border-l border-primary-gray">+</button>
                         </div>
-                        <p class="text-gray-700 text-lg">Stok: <span class="font-bold"
+                        <p class="text-primary-gray text-lg">Stok: <span class="font-bold"
                                 x-text="selectedVariant.stock"></span></p>
                     </div>
 
                     <div class="mt-3">
-                        <p class="text-gray-500 text-md md:text-lg">Subtotal</p>
-                        <p class="font-bold text-gray-900 text-lg md:text-xl" x-text="'Rp' + subtotal.toLocaleString()">
+                        <p class="text-primary-gray text-md md:text-lg">Subtotal</p>
+                        <p class="font-bold text-lg md:text-xl" x-text="'Rp' + subtotal.toLocaleString()">
                         </p>
                     </div>
 

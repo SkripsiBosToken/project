@@ -23,7 +23,7 @@
 <div {{ $attributes->merge(['class' => $defcard]) }}>
     <h3 class="text-sm md:text-xl font-semibold text-primary text-center">{{ $title }}</h3>
     <div class="flex justify-center py-4">
-        <img src="{{ $img }}" class="w-20 md:w-36 h-20 md:h-36 object-cover rounded-full">
+        <img src="{{ $img }}" class="w-20 md:w-36 h-20 md:h-36 object-cover rounded-md">
     </div>
     <hr class="border-primary py-2">
     <p class="text-xs md:text-sm text-primary-gray line-clamp-2">
