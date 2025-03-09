@@ -11,9 +11,7 @@
                     <div class="md:w-1/2 md:pl-6 mt-4 md:mt-0">
                         <h2 class="text-lg md:text-5xl font-bold font-poppins">Visi</h2>
                         <p class="text-primary-gray font-poppins mt-2 text-md md:text-2xl">
-                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has
-                            been the industry's standard dummy text ever since the 1500s, when an unknown printer took a
-                            galley of type and scrambled it to make a type specimen book.
+                            {{ $setting->visi }}
                         </p>
                     </div>
                 </div>
@@ -26,9 +24,7 @@
                     <div class="md:w-1/2 md:pr-6 mt-4 md:mt-0">
                         <h2 class="text-lg md:text-5xl font-bold font-poppins">Misi</h2>
                         <p class="text-primary-gray font-poppins mt-2 text-md md:text-2xl">
-                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has
-                            been the industry's standard dummy text ever since the 1500s, when an unknown printer took a
-                            galley of type and scrambled it to make a type specimen book.
+                            {{ $setting->misi }}
                         </p>
                     </div>
                 </div>
@@ -96,23 +92,14 @@
     </div>
 
     <div class="my-10 md:my-36">
-        <h2 class="text-xl md:text-3xl font-bold text-center text-primary font-poppins mb-4 md:mb-8">Customer Rating</h2>
+        <h2 class="text-xl md:text-3xl font-bold text-center text-primary font-poppins mb-4 md:mb-8">Customer Rating
+        </h2>
         <div class="flex flex-col md:grid md:grid-cols-3 gap-4 md:gap-8">
-            <x-card.rate 
-                name="Robert Fox" 
-                review="Synergy's resume builder is fantastic. It helped me create a professional resume that stood out to employers."
-            />
-            <x-card.rate 
-                name="Jane Doe" 
-                rate=1
-                review="A very helpful tool for designing resumes. Easy to use and professional!"
-            />
-            <x-card.rate 
-                name="John Smith" 
-                rate=4
-                review="I landed my dream job thanks to this resume builder! Highly recommended."
-            />
+            @foreach ($rates as $rate)
+                <x-card.rate name="{{ $rate->user->name }}" review="{{ $rate->message }}"
+                    role="{{ $rate->user->role->name }}" rate="{{ $rate->rate }}" />
+            @endforeach
         </div>
-        
+
     </div>
 </x-layout.customer>

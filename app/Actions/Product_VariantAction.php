@@ -12,5 +12,20 @@ class Product_VariantAction
      * @param \Illuminate\Http\Request
      * @return false|string $token
      */
+
+     public function get(){
+        $datas = Product_Variant::get();
+        return $datas;
+     }
+
+     public function updateStock($id, $stock){
+        $data = Product_Variant::find($id);
+        $data->stock = $stock;
+        $data->save();
+     }
+
+    //  public function getById(){
+    //     $data
+    //  }
     
 }

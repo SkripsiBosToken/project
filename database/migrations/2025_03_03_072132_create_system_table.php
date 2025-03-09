@@ -15,14 +15,14 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('logo');
-            $table->string('visi');
-            $table->string('misi');
-            $table->string('special_product'); // array [product_id]
-            $table->string('our_customer'); // obj [name, logo, href]
-            $table->string('our_coverage');
-            $table->string('social_media'); // obj [name, logo, href]
-            $table->string('office_address');
-            $table->string('promo_event')->nullable(); // obj [name, banner, href]
+            $table->text('visi');
+            $table->text('misi');
+            $table->text('special_product'); // array [product_id]
+            $table->text('our_customer'); // obj [name, logo, href]
+            $table->text('our_coverage'); // array [koordinat]
+            $table->text('social_media'); // obj [name, logo, href]
+            $table->text('office_address');
+            $table->text('promo_event')->nullable(); // obj [name, banner, href]
             $table->string('phone_number')->nullable();
             $table->timestamps();
         });

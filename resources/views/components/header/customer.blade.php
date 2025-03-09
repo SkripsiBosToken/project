@@ -1,6 +1,6 @@
 <nav class="w-full top-0 left-0 z-50 bg-transparent">
     <div class="flex justify-between h-16 items-center">
-        <a href="{{route('home')}}" class="text-primary text-xl md:text-3xl font-bold">KusukaCatering</a>
+        <a href="{{route('home')}}" class="text-primary text-xl md:text-3xl font-bold">{{$setting->name}}</a>
 
         <button id="menu-btn" class="md:hidden text-primary focus:outline-none">
             ☰

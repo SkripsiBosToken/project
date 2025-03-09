@@ -22,8 +22,9 @@
 <script>
     function imageSelector(images) {
         return {
-            images: images || [],
-            mainImage: images.length > 0 ? images[0] : '',
+            images: images.map(image => `{{ asset('${image}') }}`) || [],
+            mainImage: images.length > 0 ? `{{ asset('${images[0]}') }}` : '',
         }
     }
+
 </script>

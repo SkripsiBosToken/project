@@ -18,14 +18,14 @@ class Cart extends Model
     ];
 
     public function user() : HasOne {
-        return $this->hasOne(User::class, 'user_id', 'id');
+        return $this->hasOne(User::class, 'id', 'user_id');
     }
 
     public function cart_items() : HasMany {
-        return $this->hasMany(Cart_Item::class, 'id', 'product_variant_id');
+        return $this->hasMany(Cart_Item::class, 'cart_id', 'id');
     }
 
     public function order_items() : HasMany {
-        return $this->hasMany(Order_Item::class, 'id', 'cart_id');
+        return $this->hasMany(Order_Item::class, 'cart_id', 'id');
     }
 }

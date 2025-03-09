@@ -21,15 +21,15 @@ class Order extends Model
     ];
 
     public function order_items() : HasMany {
-        return $this->hasMany(Order_Item::class, 'id', 'order_id');
+        return $this->hasMany(Order_Item::class, 'order_id', 'id');
     }
 
     public function transaction() : HasOne {
-        return $this->hasOne(Transaction::class, 'id', 'order_id');
+        return $this->hasOne(Transaction::class, 'order_id', 'id');
     }
 
     public function user() : HasOne {
-        return $this->hasOne(User::class, 'user_id', 'id');
+        return $this->hasOne(User::class, 'id', 'user_id');
     }
 
 }

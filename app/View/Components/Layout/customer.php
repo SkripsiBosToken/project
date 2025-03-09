@@ -3,17 +3,18 @@
 namespace App\View\Components\Layout;
 
 use Closure;
+use App\Http\Controllers\GuestController;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
 class customer extends Component
 {
-    /**
-     * Create a new component instance.
-     */
-    public function __construct()
+    public $setting;
+    
+    public function __construct(GuestController $guestController)
     {
         //
+        $this->setting = $guestController->setting();
     }
 
     /**
@@ -21,6 +22,6 @@ class customer extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.layout.customer');
+        return view('components.layout.customer', ['setting' => $this->setting]);
     }
 }

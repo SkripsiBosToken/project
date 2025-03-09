@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('product_variants', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name_type');
-            $table->string('photo'); // array [photo]
-            $table->string('description');
+            $table->text('photo'); // array [photo]
+            $table->text('description');
             $table->integer('price');
             $table->integer('stock');
             $table->boolean('visibility');

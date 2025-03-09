@@ -18,10 +18,10 @@ class Product extends Model
     ];
 
     public function category() : HasOne {
-        return $this->hasOne(Category::class, 'category_id', 'id');
+        return $this->hasOne(Category::class, 'id', 'category_id');
     }
 
     public function product_variants() : HasMany {
-        return $this->hasMany(Product_Variant::class, 'id', 'product_id');
+        return $this->hasMany(Product_Variant::class, 'product_id', 'id');
     }
 }

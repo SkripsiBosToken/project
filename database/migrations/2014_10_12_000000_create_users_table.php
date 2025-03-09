@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->string('username');
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('address');
+            $table->text('address');
             $table->string('phone_number');
             $table->integer('point');
             $table->foreignUuid('role_id')->references('id')->on('roles');

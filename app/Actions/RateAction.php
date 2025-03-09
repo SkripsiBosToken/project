@@ -13,4 +13,8 @@ class RateAction
      * @return false|string $token
      */
     
+     public function get($number){
+        $datas = Rate::with('user.role')->take($number)->get();
+        return $datas;
+     }
 }

@@ -51,14 +51,14 @@ class User extends Authenticatable
     ];
 
     public function role() : HasOne{
-        return $this->hasOne(Role::class, 'role_id', 'id');
+        return $this->hasOne(Role::class, 'id', 'role_id');
     }
 
     public function cart() : HasOne {
-        return $this->hasOne(Cart::class, 'id', 'cart_id');
+        return $this->hasOne(Cart::class, 'cart_id', 'id');
     }
 
     public function orders() : HasMany {
-        return $this->hasMany(Order::class, 'id', 'order_id');
+        return $this->hasMany(Order::class, 'order_id', 'id');
     }
 }

@@ -52,34 +52,35 @@
         <h2 class="text-xl md:text-3xl font-bold text-center text-primary font-poppins mb-4 md:mb-8">Our Special
             Catalogue</h2>
         <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 md:gap-x-14 gap-y-4 md:gap-y-0 ">
-
-            <x-card.product />
-            <x-card.product />
-            <x-card.product />
-            <x-card.product />
+            @foreach ($products as $product)
+                @if ($product->product_variants->isNotEmpty())
+                    @php
+                        $prices = collect($product->product_variants)->pluck('price');
+                        $minPrice = $prices->min();
+                        $maxPrice = $prices->max();
+                    @endphp
+                    <x-card.product title="{{ $product->name }}" img="{{ $product->img }}"
+                        description="{{ $product->product_variants[0]->description }}" :price="$prices->count() === 1 ? $minPrice : [$minPrice, $maxPrice]"
+                        href="{{ route('catalogue-detail', ['id' => $product->id]) }}" />
+                @endif
+            @endforeach
 
         </div>
     </div>
 
     <div class="my-10 md:my-36">
         <h2 class="text-xl md:text-3xl font-bold text-center text-primary font-poppins mb-4 md:mb-8">Our Portfolio</h2>
-        <div class="flex flex-wrap justify-center items-center gap-4 md:gap-6  p-4">
-            <img src="/assets/images/logo/pop.png" class="h-12 md:h-16 lg:h-20 object-contain" alt="Customer Logo">
-            <img src="/assets/images/logo/prime.png" class="h-12 md:h-16 lg:h-20 object-contain" alt="Customer Logo">
-            <img src="/assets/images/logo/fave.png" class="h-12 md:h-16 lg:h-20 object-contain" alt="Customer Logo">
-            <img src="/assets/images/logo/neo.png" class="h-12 md:h-16 lg:h-20 object-contain" alt="Customer Logo">
+        <div class="flex flex-wrap justify-center items-center gap-4 md:gap-6  p-4">
+            @foreach ($our_customers as $our_customer)
+                <a href="{{ $our_customer['href'] }}"><img src="{{ $our_customer['logo'] }}"
+                        class="h-12 md:h-16 lg:h-20 object-contain" alt="Customer Logo"></a>
+            @endforeach
         </div>
     </div>
 
     <div class="my-10 md:my-36">
         <h2 class="text-xl md:text-3xl font-bold text-center text-primary font-poppins mb-4 md:mb-8">Our Coverage</h2>
-        <x-map.custom :coverageArea="[
-            [-7.9215, 112.6001],
-            [-7.9215, 112.6652],
-            [-8.0002, 112.6652],
-            [-8.0002, 112.6001],
-            [-7.9215, 112.6001],
-        ]" />
+        <x-map.custom :coverageArea="json_decode($setting->our_coverage)" />
     </div>
 
 </x-layout.customer>

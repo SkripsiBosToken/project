@@ -24,14 +24,14 @@ class Product_Variant extends Model
     ];
 
     public function product() : HasOne {
-        return $this->hasOne(Product::class, 'product_id', 'id');
+        return $this->hasOne(Product::class, 'id', 'product_id');
     }
 
     public function cart_items() : HasMany {
-        return $this->hasMany(Cart_Item::class, 'id', 'product_variant_id');
+        return $this->hasMany(Cart_Item::class, 'product_variant_id', 'id');
     }
 
     public function order_items() : HasMany {
-        return $this->hasMany(Order_Item::class, 'id', 'product_variant_id');
+        return $this->hasMany(Order_Item::class, 'product_variant_id', 'id');
     }
 }

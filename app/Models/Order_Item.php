@@ -22,14 +22,14 @@ class Order_Item extends Model
     ];
 
     public function order() : HasOne {
-        return $this->hasOne(Order::class, 'order_id', 'id');
+        return $this->hasOne(Order::class, 'id', 'order_id');
     }
 
     public function cart() : HasOne {
-        return $this->hasOne(Cart::class, 'cart_id', 'id');
+        return $this->hasOne(Cart::class, 'id', 'cart_id');
     }
 
     public function product_variant() : HasOne {
-        return $this->hasOne(Product_Variant::class, 'product_variant_id', 'id');
+        return $this->hasOne(Product_Variant::class, 'id', 'product_variant_id');
     }
 }
