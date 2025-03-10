@@ -19,9 +19,15 @@ class CartAction
         return $data;
     }
 
-    public function getWithUser($user_id)
-    {
-        $data = Cart::with('user', 'cart_items', 'order_items')->where('user_id', $user_id)->get();
+    public function getById($id){
+        $data = Cart::with('user', 'cart_items', 'order_items')->find($id);
         return $data;
     }
+
+    public function getByUser($user_id)
+    {
+        $data = Cart::with('user', 'cart_items.product_variant.product', 'order_items')->where('user_id', $user_id)->get();
+        return $data;
+    }
+
 }

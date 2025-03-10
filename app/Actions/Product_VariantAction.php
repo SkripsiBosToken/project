@@ -18,6 +18,11 @@ class Product_VariantAction
         return $datas;
      }
 
+     public function getById($id){
+        $datas = Product_Variant::with('product.category')->find($id);
+        return $datas;
+     }
+
      public function updateStock($id, $stock){
         $data = Product_Variant::find($id);
         $data->stock = $stock;

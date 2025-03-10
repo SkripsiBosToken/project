@@ -7,6 +7,8 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+use function PHPUnit\Framework\isEmpty;
+
 class Cart_ItemAction
 {
     /**
@@ -19,6 +21,7 @@ class Cart_ItemAction
         $data = new Cart_Item();
         $data->id = Str::uuid()->toString();
         $data->product_variant_id = $request['product_variant_id'];
+        $data->cart_id = $request['cart_id'];
         $data->qty = $request['qty'];
         $data->save();
     }
@@ -31,18 +34,35 @@ class Cart_ItemAction
         $data->save();
     }
 
-    public function updateStock($id, $qty){
+    public function updateStock($id, $qty)
+    {
         $data = Cart_Item::find($id);
         $data->qty = $qty;
         $data->save();
     }
 
-    public function getById($id){
+    public function matchCart($cart_id, $product_variant_id)
+    {
+        $data = Cart_Item::where('cart_id', $cart_id)->where('product_variant_id', $product_variant_id)->get();
+        if (count($data) !== 0) {
+            return $data[0];
+        }
+        return false;
+    }
+
+    public function getById($id)
+    {
         $data = Cart_Item::find($id);
         return $data;
     }
 
-    public function delete($id){
+    public function delete($id)
+    {
         Cart_Item::find($id)->delete();
+    }
+
+    public function deleteByCartId($cart_id)
+    {
+        Cart_Item::where('cart_id', $cart_id)->delete();
     }
 }

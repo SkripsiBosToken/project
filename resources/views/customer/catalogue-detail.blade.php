@@ -21,12 +21,16 @@
             <div class="flex justify-center items-start col-span-5">
                 <div class="flex flex-col">
                     <div class="w-full">
-                        <img :src="JSON.parse(selectedVariant.photo)[selectedImageIndex]" alt="Product Image" class="w-full h-96 object-cover rounded-xl">
+                        <img :src="JSON.parse(selectedVariant.photo)[selectedImageIndex]" alt="Product Image"
+                            class="w-full h-96 object-cover rounded-xl">
                     </div>
                     <div class="flex mt-2 space-x-2">
                         <template x-for="(image, index) in JSON.parse(selectedVariant.photo)">
-                            <button @click="updateImageIndex(index)" :class="{'opacity-50': selectedImageIndex !== index}" class="w-16 h-16 rounded-md overflow-hidden">
-                                <img :src="image" :alt="'Product Image ' + index" class="w-full h-full object-cover">
+                            <button @click="updateImageIndex(index)"
+                                :class="{ 'opacity-50': selectedImageIndex !== index }"
+                                class="w-16 h-16 rounded-md overflow-hidden">
+                                <img :src="image" :alt="'Product Image ' + index"
+                                    class="w-full h-full object-cover">
                             </button>
                         </template>
                     </div>
@@ -76,12 +80,25 @@
                     </div>
 
                     <div class="mt-4 flex flex-col gap-2">
-                        <button class="px-4 py-2 border rounded-md text-primary text-center text-md">
-                            Tambah Keranjang
-                        </button>
-                        <button class="px-4 py-2 bg-primary text-white rounded-md text-center text-md">
-                            Beli Sekarang
-                        </button>
+                        <x-form.custom action="{{ route('cart.add') }}" method="POST">
+                            @csrf 
+                            <input type="hidden" name="product_variant_id" :value="selectedVariant.id">
+                            <input type="hidden" name="cart_id" :value="">
+                            <input type="number" name="qty" :value="quantity" class="hidden">
+                            <button type="submit" class="w-full px-4 py-2 border rounded-md text-primary text-center text-md">
+                                Tambah Keranjang
+                            </button>
+                        </x-form.custom>
+                    
+                        <x-form.custom action="{{ route('checkout') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="type" value="buy-directly">
+                            <input type="hidden" name="product_variant_id" :value="selectedVariant.id">
+                            <input type="number" name="qty" :value="quantity" class="hidden">
+                            <button type="submit" class="w-full px-4 py-2 bg-primary text-white rounded-md text-center text-md">
+                                Beli Sekarang
+                            </button>
+                        </x-form.custom>
                     </div>
                 </div>
             </div>

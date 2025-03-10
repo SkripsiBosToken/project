@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('status');
             $table->integer('total_price');
             $table->string('shipping_address');
+            $table->text('transaction_id'); // id dari midtrans
             $table->foreignUuid('user_id')->references('id')->on('users');
             $table->timestamps();
         });

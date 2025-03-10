@@ -2,7 +2,7 @@
     'title' => 'Lorem Ipsum',
     'img' => '/assets/images/image-3.png',
     'description' => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
-    'price' => 123000, // Bisa menerima angka tunggal atau array
+    'price' => 123000,
     'href' => '#',
     'defcard' => 'border border-primary rounded-xl md:rounded-2xl p-2 md:p-4 shadow-md h-full font-poppins',
 ])

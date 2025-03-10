@@ -12,5 +12,4 @@ class TransactionAction
      * @param \Illuminate\Http\Request
      * @return false|string $token
      */
-    
 }

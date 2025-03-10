@@ -6,6 +6,7 @@ namespace Database\Seeders;
 use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -144,7 +145,7 @@ class DatabaseSeeder extends Seeder
             'username' => 'admin',
             'name' => 'admin',
             'email' => 'admin@admin.com',
-            'password' => 'admin',
+            'password' => Hash::make('admin'),
             'address' => 'test',
             'phone_number' => '081232857502',
             'point' => 0,
@@ -156,8 +157,8 @@ class DatabaseSeeder extends Seeder
             'username' => 'user',
             'name' => 'Faiz Diandra Maulana',
             'email' => 'user@user.com',
-            'password' => 'user',
-            'address' => 'test',
+            'password' => Hash::make('user'),
+            'address' => 'JL. Simpang Wisnuwardana III No. 6',
             'phone_number' => '081232857502',
             'point' => 0,
             'role_id' => $role_id_2,

@@ -6,7 +6,7 @@ use App\Actions\CategoryAction;
 use App\Actions\ProductAction;
 use App\Actions\RateAction;
 use App\Actions\SystemAction;
-use App\View\Components\Card\product;
+use App\Actions\AuthAction;
 use Illuminate\Http\Request;
 
 
@@ -49,21 +49,46 @@ class GuestController extends Controller
             array_push($products, $data);
         }
 
-        $our_customers = json_decode($setting['our_customer'],true);
+        $our_customers = json_decode($setting['our_customer'], true);
         return view('customer.welcome', compact('setting', 'products', 'our_customers'));
     }
 
     //view 
-    public function about(SystemAction $system_action, RateAction $rate_action){
-       $setting = $system_action->get();
-       $rates = $rate_action->get(3);
-       return view('customer.about', compact('setting', 'rates'));
+    public function about(SystemAction $system_action, RateAction $rate_action)
+    {
+        $setting = $system_action->get();
+        $rates = $rate_action->get(3);
+        return view('customer.about', compact('setting', 'rates'));
     }
 
     //view
-    public function contact(SystemAction $system_action){
+    public function contact(SystemAction $system_action)
+    {
         $setting = $system_action->get();
-        $social_medias = json_decode($setting['social_media'],true);
+        $social_medias = json_decode($setting['social_media'], true);
         return view('customer.contact', compact('setting', 'social_medias'));
+    }
+
+    //view
+    public function login()
+    {
+        return view('customer.login');
+    }
+
+    public function auth(Request $request, AuthAction $auth_action)
+    {
+        $auth_action->loginUser($request);
+        $data = $auth_action->getuser();
+
+        if ($data) {
+            if ($data['role']['name'] == 'Admin') {
+                return redirect()->route('dashboard');
+            } 
+
+            if ($data['role']['name'] == 'Customer') {
+                return redirect()->route('home');
+            }
+        }
+        return back();
     }
 }
