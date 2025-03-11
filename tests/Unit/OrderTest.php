@@ -22,8 +22,6 @@ class OrderTest extends TestCase
         parent::setUp();
 
         $this->serverKey = env('MIDTRANS_SERVER_KEY');
-        $this->clientkey = env('MIDTRANS_CLIENT_KEY');
-        $this->merchantId = env('MIDTRANS_ID_MERCHANT');
         $this->endpoint = env('MIDTRANS_ENDPOINT');
         $this->vaNumber = env('MIDTRANS_VA_NUMBER');
     }
