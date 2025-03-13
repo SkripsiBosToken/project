@@ -11,7 +11,6 @@
                         <p class="text-sm text-primary-gray">{{ Auth::user()->address }}</p>
                         <p class="text-sm text-primary-gray">{{ Auth::user()->phone_number }}</p>
                     </div>
-                    <button class="border px-3 py-1 rounded-lg text-sm">Ganti</button>
                 </div>
 
                 <div class=" mt-4">
@@ -38,7 +37,7 @@
 
             <div class="md:w-1/4 md:pl-4">
                 <x-form.custom action="{{ route('checkout.payment') }}" method="POST">
-                    <input name="shipping_address" class="hidden" type="text" value={{ Auth::user()->address }}>
+                    <input name="shipping_address" class="hidden" type="text" value="{{ Auth::user()->address }}">
                     <input name="item_details" class="hidden" type="text" x-bind:value="getItems(items)">
                     <input name="type" class="hidden" type="text" value={{ $type }}>
                     <div class="bg-white p-4 rounded-lg shadow-md">

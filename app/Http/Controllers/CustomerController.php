@@ -136,7 +136,7 @@ class CustomerController extends Controller
         $order = [
             'status' => $response['transaction_status'],
             'total_price' => $response['gross_amount'],
-            'shipping_address' => $request['shipping_address'], //need to add
+            'shipping_address' => $request['shipping_address'],
             'user_id' => $response['transaction_status'],
             'transaction_id' => $response['transaction_id'],
             'user_id' => $user['id']

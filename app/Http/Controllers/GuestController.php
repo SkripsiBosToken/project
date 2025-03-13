@@ -25,17 +25,25 @@ class GuestController extends Controller
     }
 
     // View
-    public function catalogue(ProductAction $product_action)
+    public function catalogue(ProductAction $product_action, CategoryAction $category_action)
     {
         $products = $product_action->get();
-        return view('customer.catalogue', compact('products'));
+        $categories = $category_action->get();
+        return view('customer.catalogue', compact('products', 'categories'));
     }
 
     // View
-    public function catalogue_detail(ProductAction $product_action, $id)
+    public function catalogue_detail(SystemAction $system_action, ProductAction $product_action, $id)
     {
+        $products = [];
         $product = $product_action->getById($id);
-        return view('customer.catalogue-detail', compact('product'));
+        $setting = $system_action->get();
+        $data = json_decode($setting['special_product'], true);
+        foreach ($data as $id) {
+            $data = $product_action->getById($id);
+            array_push($products, $data);
+        }
+        return view('customer.catalogue-detail', compact('product', 'products'));
     }
 
     // View 

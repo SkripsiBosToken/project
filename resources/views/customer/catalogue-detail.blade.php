@@ -81,21 +81,23 @@
 
                     <div class="mt-4 flex flex-col gap-2">
                         <x-form.custom action="{{ route('cart.add') }}" method="POST">
-                            @csrf 
+                            @csrf
                             <input type="hidden" name="product_variant_id" :value="selectedVariant.id">
                             <input type="hidden" name="cart_id" :value="">
                             <input type="number" name="qty" :value="quantity" class="hidden">
-                            <button type="submit" class="w-full px-4 py-2 border rounded-md text-primary text-center text-md">
+                            <button type="submit"
+                                class="w-full px-4 py-2 border rounded-md text-primary text-center text-md">
                                 Tambah Keranjang
                             </button>
                         </x-form.custom>
-                    
+
                         <x-form.custom action="{{ route('checkout') }}" method="POST">
                             @csrf
                             <input type="hidden" name="type" value="buy-directly">
                             <input type="hidden" name="product_variant_id" :value="selectedVariant.id">
                             <input type="number" name="qty" :value="quantity" class="hidden">
-                            <button type="submit" class="w-full px-4 py-2 bg-primary text-white rounded-md text-center text-md">
+                            <button type="submit"
+                                class="w-full px-4 py-2 bg-primary text-white rounded-md text-center text-md">
                                 Beli Sekarang
                             </button>
                         </x-form.custom>
@@ -109,10 +111,19 @@
             Recommended For You
         </h2>
         <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-10">
-            <x-card.product />
-            <x-card.product />
-            <x-card.product />
-            <x-card.product />
+            @foreach ($products as $product)
+                @if ($product->product_variants->isNotEmpty())
+                    @php
+                        $prices = collect($product->product_variants)->pluck('price');
+                        $minPrice = $prices->min();
+                        $maxPrice = $prices->max();
+                    @endphp
+                    <x-card.product title="{{ $product->name }}"
+                        img="{{ json_decode($product->product_variants[0]->photo, true)[0] }}"
+                        description="{{ $product->product_variants[0]->description }}" :price="$prices->count() === 1 ? $minPrice : [$minPrice, $maxPrice]"
+                        href="{{ route('catalogue-detail', ['id' => $product->id]) }}" />
+                @endif
+            @endforeach
         </div>
     </div>
 </x-layout.customer>
