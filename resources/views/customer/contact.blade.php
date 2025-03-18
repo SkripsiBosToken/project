@@ -4,7 +4,6 @@
 
         @php
             $officeAddress = [];
-            // $data = $setting->office_address ? json_decode($setting->office_address, true) : null;
             $address = json_decode($setting->office_address, true);
             $data = [
                 'lat' => (float) $address['latitude'],

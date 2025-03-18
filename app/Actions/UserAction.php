@@ -15,12 +15,12 @@ class UserAction
      */
 
      public function get(){
-        $datas = User::get();
+        $datas = User::with('role')->get();
         return $datas;
      }
 
      public function getById($id){
-        $data = User::find($id);
+        $data = User::with('orders.order_items.cart.cart_items.product_variant.product', 'orders.order_items.product_variant.product')->find($id);
         return $data;
      }
 
