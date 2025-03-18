@@ -30,7 +30,7 @@ class AuthAction
 
     public function getuser()
     {
-        return User::with('role')->find(Auth::id());
+        return User::with('role', 'orders.order_items.cart.cart_items.product_variant.product', 'orders.order_items.product_variant.product')->find(Auth::id());
     }
 
     public function logout()

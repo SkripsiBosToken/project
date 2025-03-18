@@ -15,10 +15,11 @@ class Transaction extends Model
     protected $fillable = [
         'status',
         'transaction_id',
+        'invoice_id',
         'order_id'
     ];
 
-    // public function order() : HasOne {
-    //     return $this->hasOne(Order::class, 'id', 'order_id');
-    // }
+    public function order() : HasOne {
+        return $this->hasOne(Order::class, 'id', 'order_id');
+    }
 }

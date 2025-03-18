@@ -7,6 +7,10 @@ use App\Actions\ProductAction;
 use App\Actions\RateAction;
 use App\Actions\SystemAction;
 use App\Actions\AuthAction;
+use App\Actions\BiteshipAction;
+use App\Actions\CartAction;
+use App\Actions\RoleAction;
+use App\Actions\UserAction;
 use Illuminate\Http\Request;
 
 
@@ -91,12 +95,58 @@ class GuestController extends Controller
         if ($data) {
             if ($data['role']['name'] == 'Admin') {
                 return redirect()->route('dashboard');
-            } 
+            }
 
             if ($data['role']['name'] == 'Customer') {
                 return redirect()->route('home');
             }
         }
-        return back();
+
+        return redirect()->route('login')->with('error', 'Username atau password salah.');
+    }
+
+    public function sign_up()
+    {
+        return view('customer.register');
+    }
+
+    public function register(Request $request, RoleAction $role_action, UserAction $user_action, BiteshipAction $biteship_action, CartAction $cart_action)
+    {
+        if (!$user_action->getByUsername($request['username']) && !$user_action->getByEmail($request['email'])) {
+            $role = $role_action->getByName('Customer');
+            $request_data = [
+                "name" => "Destinasi",
+                "contact_name" => $request['name'],
+                "contact_phone" => $request['phone'],
+                "address" => $request['address'],
+                "postal_code" => (int) $request['postal_code'],
+                "latitude" => (float) $request['latitude'],
+                "longitude" => (float) $request['longitude'],
+                "type" => "destination"
+            ];
+            $response = $biteship_action->createLocation($request_data);
+            $data = [
+                "username" => $request['username'],
+                "name" => $request['name'],
+                "email" => $request['email'],
+                "password" => $request['password'],
+                "address" => json_encode([
+                    "address" => $request['address'],
+                    "latitude" => $request['latitude'],
+                    "longitude" => $request['longitude'],
+                    "postal_code" => $request['postal_code'],
+                    "location_id" => $response['id']
+                ]),
+                "phone_number" => $request['phone'],
+                "point" => 0,
+                "role_id" => $role['id']
+            ];
+            
+            $cart_action->create([
+                'user_id' => $user_action->create($data)
+            ]);
+            return redirect()->route('login');
+        }
+        return redirect()->route('register')->with('error', 'Username atau email sudah terdaftar.');
     }
 }

@@ -30,4 +30,10 @@ class CartAction
         return $data;
     }
 
+    public function create($request){
+        $data = new Cart();
+        $data->user_id = $request['user_id'];
+        $data->save();
+    }
+
 }

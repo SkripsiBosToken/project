@@ -12,5 +12,15 @@ class RoleAction
      * @param \Illuminate\Http\Request
      * @return false|string $token
      */
+
+     public function get(){
+        $datas = Role::get();
+        return $datas;
+     }
+
+     public function getByName($name){
+        $data = Role::where('name', $name)->first();
+        return $data;
+     }
     
 }

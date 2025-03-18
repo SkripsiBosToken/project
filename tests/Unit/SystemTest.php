@@ -33,10 +33,7 @@ class SystemTest extends TestCase
             [-8.0002, 112.6001],
             [-7.9215, 112.6001]]";
         $data->social_media = '[{"name" : "Instagram", "logo" : "test", "href" : "https://www.instagram.com/kusukacatering/"}]';
-        $data->office_address = '[
-    {"lat": -7.9666, "lng": 112.6326, "label": "Pusat Kota Malang"},
-    {"lat": -7.9829, "lng": 112.6214, "label": "Universitas Brawijaya"}
-]';
+        $data->office_address = '{"address":"Perum. Bumi Madinah, Jl. Kodya No.B21, Jetak Ngasri, Tegalweru, Kec. Dau, Kabupaten Malang, Jawa Timur","latitude":"-7.9343438796402195","longitude":"112.5711911916733","postal_code":"65151","location_id":"67d97beafc4eea001225fdec"}';
         $data->promo_event = '[{"name" : "Instagram", "banner" : "/assets/images/banner.png", "href" : "https://www.instagram.com/kusukacatering/"}]';
         $data->phone_number = "08123445678";
 

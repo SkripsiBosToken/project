@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('status');
             $table->string('transaction_id');
+            $table->string('invoice_id');
             $table->foreignUuid('order_id')->references('id')->on('orders');
             $table->timestamps();
         });

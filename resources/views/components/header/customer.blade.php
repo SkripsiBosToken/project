@@ -38,7 +38,7 @@
                             class="block px-4 py-2 text-sm text-primary-gray hover:bg-primary hover:text-white">
                             Cart
                         </a>
-                        <a href="{{route('cart')}}"
+                        <a href="{{route('order-list')}}"
                             class="block px-4 py-2 text-sm text-primary-gray hover:bg-primary hover:text-white">
                             Order
                         </a>

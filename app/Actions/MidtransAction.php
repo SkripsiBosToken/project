@@ -13,7 +13,7 @@ class MidtransAction
 
    private $serverKey;
    private $clientkey;
-   private $endpoint;
+   public $endpoint;
    private $merchantId;
    public $vaNumber;
 
@@ -48,15 +48,39 @@ class MidtransAction
       return $response;
    }
 
+   public function getInvoice($invoice_id)
+   {
+      $url = $this->endpoint . 'v1/invoices/' . $invoice_id;
+      $headers = [
+         'Authorization' => 'Basic ' . base64_encode($this->serverKey . ':')
+      ];
+      $fetch = Http::withHeaders($headers)->get($url);
+      $response = $fetch->json();
+      return $response;
+   }
+
+   public function createInvoice($request)
+   {
+      $url = $this->endpoint . 'v1/invoices';
+      $headers = [
+         'Authorization' => 'Basic ' . base64_encode($this->serverKey . ':')
+      ];
+      $fetch = Http::withHeaders($headers)->post($url, $request);
+      $response = $fetch->json();
+      return $response;
+   }
+
    public function callback($request)
    {
       $hashed = hash('sha512', $request['order_id'] . $request['status_code'] . $request['gross_amount'] . $this->serverKey);
       $order_action = new OrderAction();
+      $transaction_action = new TransactionAction();
       if ($hashed === $request->signature_key) {
          $orderId = $order_action->getByTransactionId($request['transaction_id'])->id;
+         $transactionId = $transaction_action->getByOrderId($orderId)->id;
          switch ($request->transaction_status) {
             case 'capture':
-               $order_action->updateStatus($orderId, "capture");
+               $transaction_action->updateStatus($transactionId, "capture");
                $response = [
                   'success' => 1,
                   'message' => 'success request capture'
@@ -64,7 +88,8 @@ class MidtransAction
                return $response;
                break;
             case 'settlement':
-               $order_action->updateStatus($orderId, "lunas");
+               $order_action->updateStatus($orderId, "Menunggu Konfirmasi");
+               $transaction_action->updateStatus($transactionId, "settlement");
                $response = [
                   'success' => 1,
                   'message' => 'success request settlement'
@@ -72,7 +97,8 @@ class MidtransAction
                return $response;
                break;
             case 'pending':
-               $order_action->updateStatus($orderId, "pending");
+               $order_action->updateStatus($orderId, "Belum Bayar");
+               $transaction_action->updateStatus($transactionId, "pending");
                $response = [
                   'success' => 1,
                   'message' => 'success request pending'
@@ -80,7 +106,8 @@ class MidtransAction
                return $response;
                break;
             case 'deny':
-               $order_action->updateStatus($orderId, "deny");
+               $order_action->updateStatus($orderId, "Gagal");
+               $transaction_action->updateStatus($transactionId, "deny");
                $response = [
                   'success' => 1,
                   'message' => 'success request deny'
@@ -88,27 +115,32 @@ class MidtransAction
                return $response;
                break;
             case 'cancel':
-               $order_action->updateStatus($orderId, "cancel");
+               $order_action->updateStatus($orderId, "Gagal");
+               $transaction_action->updateStatus($transactionId, "cancel");
                $response = [
                   'success' => 1,
                   'message' => 'success request cancel'
                ];
                break;
             case 'expire':
-               $order_action->updateStatus($orderId, "expire");
+               $order_action->updateStatus($orderId, "Gagal");
+               $transaction_action->updateStatus($transactionId, "expire");
                $response = [
                   'success' => 1,
                   'message' => 'success request expire'
                ];
                break;
             case 'failure':
-               $order_action->updateStatus($orderId, "failure");
+               $order_action->updateStatus($orderId, "Gagal");
+               $transaction_action->updateStatus($transactionId, "failure");
                $response = [
                   'success' => 1,
                   'message' => 'success request failure'
                ];
                break;
             case 'refund':
+               $order_action->updateStatus($orderId, "Pengembalian Dana");
+               $transaction_action->updateStatus($transactionId, "refund");
                $response = [
                   'success' => 1,
                   'message' => 'success request refund'
