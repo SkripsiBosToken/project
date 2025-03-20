@@ -306,10 +306,10 @@ class CustomerController extends Controller
     public function order_detail($id, TransactionAction $transaction_action, MidtransAction $midtrans_action, OrderAction $order_action, UserAction $user_action)
     {
         $invoiceData = $transaction_action->getByOrderId($id);
-        $invoice = $midtrans_action->getInvoice($invoiceData['invoice_id']);
+        // $invoice = $midtrans_action->getInvoice($invoiceData['invoice_id']);
         $transaction = $midtrans_action->getTransaction($invoiceData['transaction_id']);
         $order = $order_action->getById($id);
         $user = $user_action->getById($order['user_id']);
-        return view('customer.order-detail', compact('invoice', 'order', 'user', 'transaction'));
+        return view('customer.order-detail', compact('order', 'user', 'transaction'));
     }
 }

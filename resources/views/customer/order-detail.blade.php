@@ -35,17 +35,46 @@
         <div class="mb-6">
             <h2 class="font-bold text-2xl text-primary mb-4">Detail Produk</h2>
             <div class="bg-white p-6 rounded-lg shadow-md">
-                @foreach ($invoice['item_details'] as $item)
+                @php
+                    $subtotal = 0;
+                @endphp
+
+                @foreach ($order['order_items'] as $item)
                     <div class="flex items-start justify-between py-4 border-b border-gray-200">
                         <div class="flex items-start">
                             <div>
-                                <p class="font-semibold text-gray-800">{{ $item['description'] }}</p>
-                                <p class="text-gray-600 mt-1">Rp {{ number_format($item['price'], 0, ',', '.') }}</p>
-                                <p class="text-gray-600 mt-1">{{ $item['quantity'] }} x</p>
+                                <p class="font-semibold text-gray-800">
+                                    {{ $item['product_variant']['product']['name'] }} -
+                                    {{ $item['product_variant']['name_type'] }}
+                                </p>
+                                <p class="text-gray-600 mt-1">
+                                    Rp {{ number_format($item['product_variant']['price'], 0, ',', '.') }}
+                                </p>
+                                <p class="text-gray-600 mt-1">
+                                    {{ $item['quantity'] }} x
+                                </p>
                             </div>
                         </div>
                     </div>
+                    @php
+                        $subtotal += $item['product_variant']['price'] * $item['quantity'];
+                    @endphp
                 @endforeach
+
+                {{-- Ongkir --}}
+                <div class="flex items-start justify-between py-4 border-b border-gray-200">
+                    <div class="flex items-start">
+                        <div>
+                            <p class="font-semibold text-gray-800">Shipping Payment</p>
+                            <p class="text-gray-600 mt-1">
+                                Rp {{ number_format($order['total_price'] - $subtotal, 0, ',', '.') }}
+                            </p>
+                            <p class="text-gray-600 mt-1">1 x</p>
+                        </div>
+                    </div>
+                </div>
+                {{-- Akhir --}}
+
             </div>
         </div>
 
