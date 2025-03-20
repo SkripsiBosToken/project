@@ -70,6 +70,35 @@ class MidtransAction
       return $response;
    }
 
+
+   public function cancelTransaction($transaction_id)
+   {
+      $url = $this->endpoint . 'v2/' . $transaction_id . '/cancel';
+
+      $response = Http::withHeaders([
+         'Authorization' => 'Basic ' . base64_encode($this->serverKey . ':'),
+         'Accept' => 'application/json',
+      ])->asForm()->post($url);
+
+      return $response;
+   }
+
+   public function refundTransaction($transaction_id, $request)
+   {
+      $url = $this->endpoint . 'v2/' . $transaction_id . '/refund';
+      $headers = [
+         'Authorization' => 'Basic ' . base64_encode($this->serverKey . ':'),
+         'Accept' => 'application/json',
+         'Content-Type' => 'application/json',
+      ];
+      $response = Http::withHeaders($headers)->post($url, $request);
+      return [
+         'url' => $url,
+         'status' => $response->status(),
+         'response' => $response->json(),
+      ];
+   }
+
    public function callback($request)
    {
       $hashed = hash('sha512', $request['order_id'] . $request['status_code'] . $request['gross_amount'] . $this->serverKey);
@@ -97,7 +126,7 @@ class MidtransAction
                return $response;
                break;
             case 'pending':
-               $order_action->updateStatus($orderId, "Belum Bayar");
+               $order_action->updateStatus($orderId, "Belum Dibayar");
                $transaction_action->updateStatus($transactionId, "pending");
                $response = [
                   'success' => 1,

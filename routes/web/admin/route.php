@@ -9,10 +9,17 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::prefix('admin')->group(function () {
 
         Route::prefix('user')->group(function () {
-
             Route::get('users', [AdminController::class, 'users'])->name('data.pelanggan');
             Route::get('user/{id}', [AdminController::class, 'users_detail'])->name('detail.pelanggan');
+        });
 
+        Route::prefix('order')->group(function () {
+            Route::get('orders', [AdminController::class, 'orders'])->name('data.pesanan');
+            Route::get('histories', [AdminController::class, 'historyOrder'])->name('data.riwayat.pesanan');
+            Route::get('history/report', [AdminController::class, 'reportHistory'])->name('data.riwayat.laporan.pesanan');
+            Route::get('order/{id}', [AdminController::class, 'order_detail'])->name('detail.pesanan');
+            Route::get('order/update-status/{id}/{status}', [AdminController::class, 'update_status'])->name('ubah-status.pesanan');
+            Route::get('order/receipt/{id}', [AdminController::class, 'generateInvoice'])->name('nota.pesanan');
         });
     });
 });

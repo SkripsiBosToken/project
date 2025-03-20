@@ -39,6 +39,10 @@
                 <x-form.custom action="{{ route('checkout.payment') }}" method="POST">
                     <input name="shipping_address" class="hidden" type="text"
                         value="{{ json_decode(Auth::user()->address, true)['address'] }}">
+                    <input name="latitude" class="hidden" type="text"
+                        value="{{ json_decode(Auth::user()->address, true)['latitude'] }}">
+                    <input name="longitude" class="hidden" type="text"
+                        value="{{ json_decode(Auth::user()->address, true)['longitude'] }}">
                     <input name="item_details" class="hidden" type="text" x-bind:value="getItems(items)">
                     <input name="type" class="hidden" type="text" value={{ $type }}>
                     <div class="bg-white p-4 rounded-lg shadow-md">

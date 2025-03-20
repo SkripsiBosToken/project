@@ -26,7 +26,7 @@
                 <div class="mt-4">
                     <p class="text-gray-600">Alamat Pengiriman</p>
                     <p class="font-semibold text-gray-800">{{ $user->name }}</p>
-                    <p class="text-gray-600">{{ $order->shipping_address }}</p>
+                    <p class="text-gray-600">{{ json_decode($order->shipping_address, true)['address'] }}</p>
                     <p class="text-gray-600">{{ $user->phone_number }}</p>
                 </div>
             </div>

@@ -11,7 +11,7 @@
             <h1 class="text-2xl font-bold w-full md:w-auto">Status</h1>
 
             <template
-                x-for="status in ['Belum Bayar', 'Menunggu Konfirmasi', 'Diproses', 'Dikirim', 'Berhasil', 'Gagal']">
+                x-for="status in ['Belum Dibayar', 'Menunggu Konfirmasi', 'Diproses', 'Dikirim', 'Berhasil', 'Gagal']">
                 <button @click="setStatus(status)"
                     x-bind:class="activeStatus === status ? 'border border-primary font-bold text-lg text-primary' :
                         'text-primary-gray'"
@@ -41,8 +41,7 @@
                         <a x-bind:href="'/order-detail/' + item.id">
                             <button class="bg-primary text-white px-2 py-1 rounded-md">Lihat Detail</button>
                         </a>
-                        <template x-if="item.status === 'Belum Bayar'">
-
+                        <template x-if="item.status === 'Belum Dibayar'">
                             <a x-bind:href="'/payment/' + item.id">
                                 <button class="border border-primary text-primary px-2 py-1 rounded-md">Lihat Cara Bayar</button>
                             </a>

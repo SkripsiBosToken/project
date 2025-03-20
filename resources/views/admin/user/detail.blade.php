@@ -30,7 +30,6 @@
                                 <strong class="card-title">Pelanggan Detail</strong>
                             </div>
                             <div class="card-body">
-                                <!-- Credit Card -->
                                 <div id="pay-invoice">
                                     <div class="card-body">
                                         <div class="form-group">
@@ -118,7 +117,7 @@
                                                 </td>
                                                 <td>{{ $order['status'] }}</td>
                                                 <td>{{ 'Rp ' . number_format($order['total_price'], 0, ',', '.') }}</td>
-                                                <td>{{ \Carbon\Carbon::parse($order['created_at'])->translatedFormat('d F Y, H:i') }}
+                                                <td>{{ \Carbon\Carbon::parse($order['created_at'])->locale('id')->translatedFormat('d F Y, H:i') }}
                                                 </td>
                                                 <td class="flex flex-row gap-x-2">
                                                     <x-button.custom

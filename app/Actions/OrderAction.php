@@ -16,20 +16,19 @@ class OrderAction
 
     public function get()
     {
-        $datas = Order::get();
+        $datas = Order::with('order_items.product_variant.product', 'order_items.cart.cart_items.product_variant.product')->get();
         return $datas;
     }
 
-
     public function  getById($id)
     {
-        $data = Order::find($id);
+        $data = Order::with('transaction', 'order_items.product_variant.product.category', 'order_items.cart.cart_items.product_variant.product.category', 'user')->find($id);
         return $data;
     }
 
     public function getByStatus($status)
     {
-        $datas = Order::where('status', $status)->get();
+        $datas = Order::with('transaction', 'order_items.product_variant.product', 'order_items.cart.cart_items.product_variant.product', 'user')->where('status', $status)->get();
         return $datas;
     }
 

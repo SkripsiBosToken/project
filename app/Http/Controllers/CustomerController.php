@@ -46,6 +46,7 @@ class CustomerController extends Controller
 
     public function checkout(Request $request, Product_VariantAction $product_variant_action, Cart_ItemAction $cart_item_action, CartAction $cart_action, AuthAction $auth_action, SystemAction $system_action)
     {
+        $user_address = json_decode($auth_action->getuser()['address'], true);
         $items = [];
         $datas = [];
         $type = $request['type'];
@@ -70,7 +71,7 @@ class CustomerController extends Controller
             }
         }
 
-        $shippingCost = $this->calculateShippingCost();
+        $shippingCost = $this->calculateShippingCost((float)$user_address['latitude'], (float)$user_address['longitude']);
 
         return view('customer.checkout', compact('datas', 'type', 'shippingCost'));
     }
@@ -88,14 +89,14 @@ class CustomerController extends Controller
             'id' => 'shipping-cost',
             'name' => 'Ongkir / Shipping Cost',
             'quantity' => 1,
-            'price' => $this->calculateShippingCost()
+            'price' => $this->calculateShippingCost((float)$request['latitude'], (float)$request['longitude'])
         ];
 
         $shippingCost_v2 = [
             'item_id' => 'shipping-cost',
             'description' => 'Ongkir / Shipping Cost',
             'quantity' => 1,
-            'price' => $this->calculateShippingCost()
+            'price' => $this->calculateShippingCost((float)$request['latitude'], (float)$request['longitude'])
         ];
 
         $user = $auth_action->getuser();
@@ -197,12 +198,16 @@ class CustomerController extends Controller
                 ['bank' => ($paymentType !== 'qris') ? $paymentType . '_va' : 'bca_va']
             ]
         ];
-        $invoice_request = $midtrans_action->createInvoice($invoice);
+        // $invoice_request = $midtrans_action->createInvoice($invoice);
 
         $order = [
             'status' => 'Belum Dibayar',
             'total_price' => $response['gross_amount'],
-            'shipping_address' => $request['shipping_address'],
+            'shipping_address' => json_encode([
+                'address' => $request['shipping_address'],
+                'latitude' => (float)$request['latitude'],
+                'longitude' => (float)$request['longitude'],
+            ]),
             'transaction_id' => $response['transaction_id'],
             'user_id' => $user['id']
         ];
@@ -212,7 +217,8 @@ class CustomerController extends Controller
         $transaction = [
             'status' => $response['transaction_status'],
             'transaction_id' => $response['transaction_id'],
-            'invoice_id' => $invoice_request['id'],
+            // 'invoice_id' => $invoice_request['id'],
+            'invoice_id' => "tset",
             'order_id' => $order_id
         ];
 
@@ -266,18 +272,16 @@ class CustomerController extends Controller
 
     // Iterasi II
 
-    public function calculateShippingCost()
+    public function calculateShippingCost($latitude, $longitude)
     {
         $earthRadius = 6371;
         $ratePekKm = 3000;
-        $auth_action = new AuthAction();
         $system_action = new SystemAction();
 
-        $userAddress = json_decode($auth_action->getuser()['address'], true);
         $officeAddress = json_decode($system_action->get()['office_address'], true);
 
-        $lat1 = deg2rad((float)$userAddress['latitude']);
-        $lng1 = deg2rad((float)$userAddress['longitude']);
+        $lat1 = deg2rad($latitude);
+        $lng1 = deg2rad($longitude);
         $lat2 = deg2rad((float)$officeAddress['latitude']);
         $lng2 = deg2rad((float)$officeAddress['longitude']);
 

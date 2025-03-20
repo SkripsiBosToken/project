@@ -24,7 +24,7 @@
 
             <h3 class="menu-title">Pesanan</h3>
             <li>
-                <a href="widgets.html"> <i class="menu-icon ti-email"></i>Semua Pesanan</a>
+                <a href="{{ route('data.pesanan') }}"> <i class="menu-icon ti-email"></i>Semua Pesanan</a>
             </li>
 
             <h3 class="menu-title">Pelanggan & Transaksi</h3>
@@ -34,7 +34,7 @@
 
             <h3 class="menu-title">Laporan Penjualan</h3>
             <li>
-                <a href="widgets.html"> <i class="menu-icon ti-email"></i>Semua Laporan</a>
+                <a href="{{ route('data.riwayat.pesanan') }}"> <i class="menu-icon ti-email"></i>Semua Laporan</a>
             </li>
         </ul>
     </div>
