@@ -3,14 +3,14 @@
         <div class="md:w-1/2">
             <div class="space-y-4 md:space-y-8">
                 <h1 class="text-4xl md:text-5xl font-extrabold text-primary">
-                    Your Favorite Food <br> Delivered <span class="text-primary-secondary">Hot & Fresh</span>
+                    Catering Malang <br> Pesan <span class="text-primary-secondary">Makanan Lezat & Fresh</span>
                 </h1>
                 <p class="text-primary-gray font-poppins text-lg md:text-2xl">
-                    We provide you to take the best experience in travel and explore
+                    Pesan catering Malang dengan makanan lezat, fresh, dan siap diantar ke lokasi Anda.
                 </p>
                 <x-button.custom
                     class="px-4 md:px-6 py-2 md:py-3 font-medium md:font-semibold text-sm md:text-lg rounded-md hover:bg-opacity-80"
-                    href="#">Show Me Now</x-button.custom>
+                    href="{{ route('catalogue')}}">Show Me Product</x-button.custom>
 
             </div>
             <div class="flex py-4 md:pt-8 space-x-6 mt-6">
@@ -59,9 +59,10 @@
                         $minPrice = $prices->min();
                         $maxPrice = $prices->max();
                     @endphp
-                    <x-card.product title="{{ $product->name }}" img="{{ json_decode($product->product_variants[0]->photo, true)[0] }}"
+                    <x-card.product title="{{ $product->name }}"
+                        img="{{ json_decode($product->product_variants[0]->photo, true)[0] }}"
                         description="{{ $product->product_variants[0]->description }}" :price="$prices->count() === 1 ? $minPrice : [$minPrice, $maxPrice]"
-                        href="{{ route('catalogue-detail', ['id' => $product->id]) }}" />
+                        href="{{ route('catalogue-detail', ['id' => $product->id, 'slug' => Str::slug($product->name)]) }}" />
                 @endif
             @endforeach
 
@@ -80,7 +81,7 @@
 
     <div class="my-10 md:my-36">
         <h2 class="text-xl md:text-3xl font-bold text-center text-primary font-poppins mb-4 md:mb-8">Our Coverage</h2>
-        <x-map.custom :coverageArea="json_decode($setting->our_coverage)" />
+        <x-map.custom :coverageArea="json_decode($setting['our_coverage'], true)" />
     </div>
 
 </x-layout.customer>

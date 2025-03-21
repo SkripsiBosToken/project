@@ -104,6 +104,7 @@ class MidtransAction
       $hashed = hash('sha512', $request['order_id'] . $request['status_code'] . $request['gross_amount'] . $this->serverKey);
       $order_action = new OrderAction();
       $transaction_action = new TransactionAction();
+      $user_action = new UserAction();
       if ($hashed === $request->signature_key) {
          $orderId = $order_action->getByTransactionId($request['transaction_id'])->id;
          $transactionId = $transaction_action->getByOrderId($orderId)->id;
@@ -123,6 +124,10 @@ class MidtransAction
                   'success' => 1,
                   'message' => 'success request settlement'
                ];
+               $user_id = explode('_', $request['order_id'])[1];
+               $user = $user_action->getById($user_id);
+               $point = $user['point'] + floor((int)$request['gross_amount'] / 100000);
+               $user_action->updatePoint($user_id, $point);
                return $response;
                break;
             case 'pending':

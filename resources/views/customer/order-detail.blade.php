@@ -61,7 +61,6 @@
                     @endphp
                 @endforeach
 
-                {{-- Ongkir --}}
                 <div class="flex items-start justify-between py-4 border-b border-gray-200">
                     <div class="flex items-start">
                         <div>
@@ -73,7 +72,6 @@
                         </div>
                     </div>
                 </div>
-                {{-- Akhir --}}
 
             </div>
         </div>

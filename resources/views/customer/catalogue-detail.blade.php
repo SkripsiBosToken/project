@@ -121,7 +121,7 @@
                     <x-card.product title="{{ $product->name }}"
                         img="{{ json_decode($product->product_variants[0]->photo, true)[0] }}"
                         description="{{ $product->product_variants[0]->description }}" :price="$prices->count() === 1 ? $minPrice : [$minPrice, $maxPrice]"
-                        href="{{ route('catalogue-detail', ['id' => $product->id]) }}" />
+                        href="{{ route('catalogue-detail', ['id' => $product->id, 'slug' => Str::slug($product->name)]) }}" />
                 @endif
             @endforeach
         </div>

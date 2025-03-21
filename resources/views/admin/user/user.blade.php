@@ -53,9 +53,9 @@
                                                         <x-button.custom defbutton="bg-blue-500 text-white px-2 py-1 rounded-lg" href="{{ route('detail.pelanggan', ['id' => $item['id']]) }}">
                                                             Detail
                                                         </x-button.custom>
-                                                        <x-button.custom defbutton="bg-primary-danger text-white px-2 py-1 rounded-lg">
+                                                        {{-- <x-button.custom defbutton="bg-primary-danger text-white px-2 py-1 rounded-lg">
                                                             Delete
-                                                        </x-button.custom>
+                                                        </x-button.custom> --}}
                                                     </td>
                                                     
                                                 </tr>

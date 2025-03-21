@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
         $user_id_2 = Str::uuid()->toString();
 
         $cart_id_1 = Str::uuid()->toString();
+        $cart_id_2 = Str::uuid()->toString();
 
         DB::table('categories')->insert([
             'id' => $category_id_1,
@@ -114,11 +115,7 @@ class DatabaseSeeder extends Seeder
             'misi' => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
             'special_product' => '["' . $product_id_1 . '", "' . $product_id_2 . '"]',
             'our_customer' => '[{"name" : "Pop Hotel", "logo" : "/assets/images/logo/pop.png", "href" : "https://www.instagram.com/kusukacatering/"}, {"name" : "Fave Hotel", "logo" : "/assets/images/logo/fave.png", "href" : "https://www.instagram.com/kusukacatering/"}, {"name" : "Neo Hotel", "logo" : "/assets/images/logo/neo.png", "href" : "https://www.instagram.com/kusukacatering/"}, {"name" : "Prime Hotel", "logo" : "/assets/images/logo/prime.png", "href" : "https://www.instagram.com/kusukacatering/"}]',
-            'our_coverage' => "[[-7.9215, 112.6001],
-            [-7.9215, 112.6652],
-            [-8.0002, 112.6652],
-            [-8.0002, 112.6001],
-            [-7.9215, 112.6001]]",
+            'our_coverage' => '[{ "lat": "-7.9666", "lng": "112.6326", "radius": "5000" }, { "lat": "-7.9750", "lng": "112.6450", "radius": "3000" }]',
             'social_media' => '[{"name" : "Instagram", "logo" : "test", "href" : "https://www.instagram.com/kusukacatering/"}]',
             'office_address' => '{"address":"Perum. Bumi Madinah, Jl. Kodya No.B21, Jetak Ngasri, Tegalweru, Kec. Dau, Kabupaten Malang, Jawa Timur","latitude":"-7.9343438796402195","longitude":"112.5711911916733","postal_code":"65151","location_id":"67d97beafc4eea001225fdec"}',
             'promo_event' => '[{"name" : "Instagram", "banner" : "/assets/images/banner.png", "href" : "https://www.instagram.com/kusukacatering/"}]',
@@ -185,6 +182,11 @@ class DatabaseSeeder extends Seeder
         DB::table('carts')->insert([
             'id' => $cart_id_1,
             'user_id' => $user_id_2,
+        ]);
+
+        DB::table('carts')->insert([
+            'id' => $cart_id_2,
+            'user_id' => $user_id_1,
         ]);
 
         DB::table('cart_items')->insert([

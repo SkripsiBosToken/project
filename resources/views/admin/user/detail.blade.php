@@ -55,6 +55,12 @@
                                             <input type="text" class="form-control" aria-required="true"
                                                 aria-invalid="false" value="{{ $data['phone_number'] }}" disabled>
                                         </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="cc-payment" class="control-label mb-1">Point</label>
+                                            <input type="text" class="form-control" aria-required="true"
+                                                aria-invalid="false" value="{{ $data['point'] }}" disabled>
+                                        </div>
 
                                         <div class="form-group">
                                             <label for="cc-payment" class="control-label mb-1">Address</label>
@@ -62,9 +68,10 @@
                                                 aria-invalid="false"
                                                 value="{{ json_decode($data['address'], true)['address'] }}" disabled>
                                         </div>
+                                        
 
                                         <div class="form-group">
-                                            <label for="cc-payment" class="control-label mb-1">Pin Point</label>
+                                            <label for="cc-payment" class="control-label mb-1">Address Point</label>
                                             @php
                                                 $officeAddress = [];
                                                 $address = json_decode($data['address'], true);
@@ -78,6 +85,7 @@
 
                                             @if (is_array($officeAddress))
                                                 <x-map.custom :pinArea="$officeAddress" />
+                                                <p class="text-primary-danger text-sm">*Pencet untuk melihat pada google map</p>
                                             @else
                                                 <p>Data lokasi kantor tidak valid atau tidak tersedia.</p>
                                             @endif
