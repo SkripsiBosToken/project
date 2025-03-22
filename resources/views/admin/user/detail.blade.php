@@ -129,7 +129,7 @@
                                                 </td>
                                                 <td class="flex flex-row gap-x-2">
                                                     <x-button.custom
-                                                        defbutton="bg-blue-500 text-white px-2 py-1 rounded-lg">
+                                                        defbutton="bg-blue-500 text-white px-2 py-1 rounded-lg" href="{{ route('detail.pesanan', ['id' => $order['id']]) }}">
                                                         Detail
                                                     </x-button.custom>
                                                 </td>
