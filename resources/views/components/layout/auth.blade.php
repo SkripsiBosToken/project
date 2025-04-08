@@ -14,9 +14,9 @@
 </head>
 
 <body>
-    <div class="h-screen font-poppins grid md:grid-cols-2 overflow-hidden">
+    <div class="h-screen font-poppins grid md:grid-cols-2">
         <div
-            class="bg-gradient-to-r from-primary to-primary-dark flex flex-col justify-center relative min-h-screen md:min-h-full md:block hidden">
+            class="bg-gradient-to-r from-primary to-primary-secondary flex flex-col justify-center relative min-h-screen md:min-h-full md:block hidden">
             <div class="mx-10 my-10 md:my-0 md:flex md:items-center md:h-full">
                 <div class="md:w-4/5">
                     <p class="text-white text-3xl md:text-4xl font-bold mb-4">

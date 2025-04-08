@@ -21,5 +21,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
             Route::get('order/update-status/{id}/{status}', [AdminController::class, 'update_status'])->name('ubah-status.pesanan');
             Route::get('order/receipt/{id}', [AdminController::class, 'generateInvoice'])->name('nota.pesanan');
         });
+
+        Route::prefix('catalogue')->group(function () {
+           Route::get('catalogues', [AdminController::class, 'catalogues'])->name('data.katalog');
+        });
     });
 });

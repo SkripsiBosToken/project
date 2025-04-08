@@ -6,17 +6,19 @@
             <i class="fa fa-bars"></i>
         </button>
         <a class="navbar-brand" href="./"><img src="{{ asset('assets/images/logo.png') }}" alt="Logo"></a>
-        <a class="navbar-brand hidden" href="./"><img src="{{ asset('assets/images/logo2.png') }}" alt="Logo"></a>
+        <a class="navbar-brand hidden" href="./"><img src="{{ asset('assets/images/logo2.png') }}"
+                alt="Logo"></a>
     </div>
 
-    <div id="main-menu" class="main-menu collapse navbar-collapse">
+    {{-- <div id="main-menu" class="main-menu collapse navbar-collapse"> --}}
+    <div class="main-menu">
         <ul class="nav navbar-nav">
             <li class="active">
                 <a href="index.html"> <i class="menu-icon fa fa-dashboard"></i>Dashboard </a>
             </li>
             <h3 class="menu-title">Produk & Katalog</h3><!-- /.menu-title -->
             <li>
-                <a href="widgets.html"> <i class="menu-icon ti-email"></i>Daftar Produk </a>
+                <a href="{{ route ('data.katalog') }}"> <i class="menu-icon ti-email"></i>Daftar Produk </a>
             </li>
             <li>
                 <a href="widgets.html"> <i class="menu-icon ti-email"></i>Tambah Produk </a>

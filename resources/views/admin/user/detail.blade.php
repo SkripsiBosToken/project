@@ -51,11 +51,19 @@
                                         </div>
 
                                         <div class="form-group">
+                                            <label for="cc-payment" class="control-label mb-1">Birth Date</label>
+                                            <input type="text" class="form-control" aria-required="true"
+                                                aria-invalid="false"
+                                                value="{{ \Carbon\Carbon::parse($data['birth_date'])->locale('id')->translatedFormat('d F Y') }}"
+                                                disabled>
+                                        </div>
+
+                                        <div class="form-group">
                                             <label for="cc-payment" class="control-label mb-1">Phone Number</label>
                                             <input type="text" class="form-control" aria-required="true"
                                                 aria-invalid="false" value="{{ $data['phone_number'] }}" disabled>
                                         </div>
-                                        
+
                                         <div class="form-group">
                                             <label for="cc-payment" class="control-label mb-1">Point</label>
                                             <input type="text" class="form-control" aria-required="true"
@@ -68,7 +76,7 @@
                                                 aria-invalid="false"
                                                 value="{{ json_decode($data['address'], true)['address'] }}" disabled>
                                         </div>
-                                        
+
 
                                         <div class="form-group">
                                             <label for="cc-payment" class="control-label mb-1">Address Point</label>
@@ -85,7 +93,8 @@
 
                                             @if (is_array($officeAddress))
                                                 <x-map.custom :pinArea="$officeAddress" />
-                                                <p class="text-primary-danger text-sm">*Pencet untuk melihat pada google map</p>
+                                                <p class="text-primary-danger text-sm">*Pencet untuk melihat pada google
+                                                    map</p>
                                             @else
                                                 <p>Data lokasi kantor tidak valid atau tidak tersedia.</p>
                                             @endif
@@ -120,18 +129,20 @@
                                                     @foreach ($order['order_items'] as $item)
                                                         <li>{{ $item['product_variant']['product']['name'] }} -
                                                             {{ $item['product_variant']['name_type'] }}
-                                                            ({{ $item['quantity'] }}X)</li>
+                                                            ({{ $item['quantity'] }}X)
+                                                        </li>
                                                     @endforeach
                                                 </td>
                                                 <td>{{ $order['status'] }}</td>
-                                                <td>{{ 'Rp ' . number_format($order['total_price'], 0, ',', '.') }}</td>
+                                                <td>{{ 'Rp ' . number_format($order['total_price'], 0, ',', '.') }}
+                                                </td>
                                                 <td>{{ \Carbon\Carbon::parse($order['created_at'])->locale('id')->translatedFormat('d F Y, H:i') }}
                                                 </td>
                                                 <td class="flex flex-row gap-x-2">
-                                                    <x-button.custom
-                                                        defbutton="bg-blue-500 text-white px-2 py-1 rounded-lg" href="{{ route('detail.pesanan', ['id' => $order['id']]) }}">
-                                                        Detail
-                                                    </x-button.custom>
+                                                    <a href="{{ route('detail.pesanan', ['id' => $order['id']]) }}">
+                                                        <button class="btn btn-primary mt-2">
+                                                            Detail
+                                                        </button></a>
                                                 </td>
 
                                             </tr>

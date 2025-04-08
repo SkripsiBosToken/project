@@ -57,19 +57,16 @@
                                                 <td id="created-at-{{ $order['id'] }}">{{ $order['created_at'] }}</td>
 
                                                 <td class="flex flex-row gap-x-2">
-                                                    <x-button.custom
-                                                        defbutton="bg-blue-500 text-white px-2 py-1 rounded-lg"
-                                                        href="{{ route('detail.pesanan', ['id' => $order['id']]) }}">
-                                                        Detail
-                                                    </x-button.custom>
+                                                    <a href="{{ route('detail.pesanan', ['id' => $order['id']]) }}">
+                                                        <button class="btn btn-primary mt-2">
+                                                            Detail
+                                                        </button></a>
                                                     <div class="user-area dropdown float-right">
-                                                        <x-button.custom
-                                                            defbutton="bg-amber-300 text-white px-2 py-1 rounded-lg"
-                                                            href="#" class="dropdown-toggle"
-                                                            data-toggle="dropdown" aria-haspopup="true"
-                                                            aria-expanded="false">
+                                                        <button class="btn btn-warning mt-2" href="#"
+                                                            class="dropdown-toggle" data-toggle="dropdown"
+                                                            aria-haspopup="true" aria-expanded="false">
                                                             Ubah Status
-                                                        </x-button.custom>
+                                                        </button>
 
                                                         <div class="user-menu dropdown-menu">
                                                             @if ($order['status'] === 'Belum Dibayar')
@@ -80,13 +77,15 @@
                                                                 href="{{ route('ubah-status.pesanan', ['id' => $order['id'], 'status' => 'Diproses']) }}">Diproses</a>
                                                             <a class="nav-link"
                                                                 href="{{ route('ubah-status.pesanan', ['id' => $order['id'], 'status' => 'Dikirim']) }}">Dikirim</a>
+                                                                <a class="nav-link"
+                                                                    href="{{ route('ubah-status.pesanan', ['id' => $order['id'], 'status' => 'Berhasil']) }}">Berhasil</a>
                                                         </div>
                                                     </div>
                                                     @if ($order['status'] !== 'Belum Dibayar' && $order['status'] !== 'Gagal')
-                                                        <x-button.custom
-                                                            defbutton="bg-primary text-white px-2 py-1 rounded-lg" href="{{route('nota.pesanan', ['id' => $order['id']])}}">
-                                                            Cetak Nota
-                                                        </x-button.custom>
+                                                        <a href="{{ route('nota.pesanan', ['id' => $order['id']]) }}"><button
+                                                                class="btn btn-info mt-2">
+                                                                Cetak Nota
+                                                            </button></a>
                                                     @endif
                                                 </td>
                                             </tr>
@@ -118,7 +117,7 @@
         };
         return date.toLocaleDateString('id-ID', dateOptions) + ', ' + date.toLocaleTimeString('id-ID', timeOptions);
     }
-    
+
     document.addEventListener("DOMContentLoaded", function() {
         document.querySelectorAll("[id^='created-at-']").forEach(element => {
             element.textContent = formatDateTime(element.textContent);

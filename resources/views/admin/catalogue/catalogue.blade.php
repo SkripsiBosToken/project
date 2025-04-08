@@ -35,30 +35,26 @@
                                     <thead>
                                         <tr>
                                             <th>Name</th>
-                                            <th>Email</th>
-                                            <th>Phone Number</th>
-                                            <th>Point</th>
+                                            <th>Category</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($datas as $item)
-                                            @if ($item['role']['name'] !== 'Admin')
-                                                <tr>
-                                                    <td>{{ $item['name'] }}</td>
-                                                    <td>{{ $item['email'] }}</td>
-                                                    <td>{{ $item['phone_number'] }}</td>
-                                                    <td>{{ $item['point'] }}</td>
-                                                    <td class="flex flex-row gap-x-2">
-                                                        <a
-                                                            href="{{ route('detail.pelanggan', ['id' => $item['id']]) }}">
-                                                            <button class="btn btn-primary mt-2">
-                                                                Detail
-                                                            </button></a>
-                                                    </td>
-
-                                                </tr>
-                                            @endif
+                                            <tr>
+                                                <td>{{ $item['name'] }}</td>
+                                                <td>{{ $item['category']['name'] }}</td>
+                                                <td class="flex flex-row gap-x-2">
+                                                    <a href="{{ route('detail.pelanggan', ['id' => $item['id']]) }}">
+                                                        <button class="btn btn-primary mt-2">
+                                                            Detail
+                                                        </button></a>
+                                                    <a href="{{ route('detail.pelanggan', ['id' => $item['id']]) }}">
+                                                        <button class="btn btn-danger mt-2">
+                                                            Delete
+                                                        </button></a>
+                                                </td>
+                                            </tr>
                                         @endforeach
                                     </tbody>
                                 </table>

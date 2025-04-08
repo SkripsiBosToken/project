@@ -48,6 +48,7 @@ class UserAction
       $data->address = $request['address'];
       $data->phone_number = $request['phone_number'];
       $data->point = $request['point'];
+      $data->birth_date = $request['birth_date'];
       $data->role_id = $request['role_id'];
       $data->save();
 

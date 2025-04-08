@@ -12,8 +12,8 @@ export default {
             },
             colors: {
                 primary: {
-                    DEFAULT: "#588157", // Warna utama
-                    secondary: "#14532D",
+                    DEFAULT: "#860000",
+                    secondary: "#550A10",
                     gray: "#6F6F6F",
                     gray_light: "#F0F0F0",
                     light: "#3B82F6",
@@ -21,8 +21,8 @@ export default {
                     danger: "#B00000",
                 },
                 secondary: {
-                    DEFAULT: "#588157",
-                    secondary: "#14532D",
+                    DEFAULT: "#860000",
+                    secondary: "#550A10",
                     gray: "#6F6F6F",
                     gray_light: "#F0F0F0",
                     light: "#FBBF24",
@@ -30,8 +30,8 @@ export default {
                     danger: "#B00000",
                 },
                 neutral: {
-                    DEFAULT: "#588157",
-                    secondary: "#14532D",
+                    DEFAULT: "#860000",
+                    secondary: "#550A10",
                     gray: "#6F6F6F",
                     gray_light: "#F0F0F0",
                     light: "#6B7280",
@@ -41,5 +41,9 @@ export default {
             },
         },
     },
-    plugins: [],
+    plugins: [
+        require('tailwind-bootstrap-grid')({
+            containerMaxWidths: { sm: '540px', md: '720px', lg: '960px', xl: '1140px' }
+        })
+    ],
 };

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\MidtransAction;
 use App\Actions\OrderAction;
+use App\Actions\ProductAction;
 use App\Actions\SystemAction;
 use App\Actions\TransactionAction;
 use App\Actions\UserAction;
@@ -107,5 +108,10 @@ class AdminController extends Controller
 
         $pdf = Pdf::loadView('admin.order.report', compact('reportData', 'start_date', 'end_date'));
         return $pdf->download('Laporan_Harian_' . $start_date . '-' . $end_date . '.pdf');
+    }
+
+    public function catalogues(ProductAction $product_action){
+        $datas = $product_action->get();
+        return view('admin.catalogue.catalogue', compact('datas'));
     }
 }

@@ -32,7 +32,8 @@
                             <div class="card-body">
                                 <div id="pay-invoice">
                                     <div class="card-body">
-                                        <x-form.custom action="{{ route('data.riwayat.laporan.pesanan') }}" method="get">
+                                        <x-form.custom action="{{ route('data.riwayat.laporan.pesanan') }}"
+                                            method="get">
                                             <div class="form-group">
                                                 <label for="cc-payment" class="control-label mb-1">Pilih Rentang
                                                     Tanggal</label>
@@ -83,17 +84,15 @@
                                                 <td id="created-at-{{ $order['id'] }}">{{ $order['created_at'] }}</td>
 
                                                 <td class="flex flex-row gap-x-2">
-                                                    <x-button.custom
-                                                        defbutton="bg-blue-500 text-white px-2 py-1 rounded-lg"
-                                                        href="{{ route('detail.pesanan', ['id' => $order['id']]) }}">
-                                                        Detail
-                                                    </x-button.custom>
+                                                    <a href="{{ route('detail.pesanan', ['id' => $order['id']]) }}">
+                                                        <button class="btn btn-primary mt-2">
+                                                            Detail
+                                                        </button></a>
                                                     @if ($order['status'] !== 'Belum Dibayar' && $order['status'] !== 'Gagal')
-                                                        <x-button.custom
-                                                            defbutton="bg-primary text-white px-2 py-1 rounded-lg"
-                                                            href="{{ route('nota.pesanan', ['id' => $order['id']]) }}">
-                                                            Cetak Nota
-                                                        </x-button.custom>
+                                                        <a href="{{ route('nota.pesanan', ['id' => $order['id']]) }}">
+                                                            <button class="btn btn-info mt-2">
+                                                                Cetak Nota
+                                                            </button></a>
                                                     @endif
                                                 </td>
                                             </tr>

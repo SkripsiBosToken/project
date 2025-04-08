@@ -20,6 +20,7 @@ return new class extends Migration
             $table->text('address');
             $table->string('phone_number');
             $table->integer('point');
+            $table->date('birth_date')->nullable();
             $table->foreignUuid('role_id')->references('id')->on('roles');
             $table->rememberToken();
             $table->timestamps();

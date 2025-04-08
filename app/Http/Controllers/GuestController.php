@@ -114,17 +114,17 @@ class GuestController extends Controller
     {
         if (!$user_action->getByUsername($request['username']) && !$user_action->getByEmail($request['email'])) {
             $role = $role_action->getByName('Customer');
-            $request_data = [
-                "name" => "Destinasi",
-                "contact_name" => $request['name'],
-                "contact_phone" => $request['phone'],
-                "address" => $request['address'],
-                "postal_code" => (int) $request['postal_code'],
-                "latitude" => (float) $request['latitude'],
-                "longitude" => (float) $request['longitude'],
-                "type" => "destination"
-            ];
-            $response = $biteship_action->createLocation($request_data);
+            // $request_data = [
+            //     "name" => "Destinasi",
+            //     "contact_name" => $request['name'],
+            //     "contact_phone" => $request['phone'],
+            //     "address" => $request['address'],
+            //     "postal_code" => (int) $request['postal_code'],
+            //     "latitude" => (float) $request['latitude'],
+            //     "longitude" => (float) $request['longitude'],
+            //     "type" => "destination"
+            // ];
+            // $response = $biteship_action->createLocation($request_data);
             $data = [
                 "username" => $request['username'],
                 "name" => $request['name'],
@@ -135,10 +135,11 @@ class GuestController extends Controller
                     "latitude" => $request['latitude'],
                     "longitude" => $request['longitude'],
                     "postal_code" => $request['postal_code'],
-                    "location_id" => $response['id']
+                    // "location_id" => $response['id']
                 ]),
                 "phone_number" => $request['phone'],
                 "point" => 0,
+                "birth_date" => $request['birth_date'],
                 "role_id" => $role['id']
             ];
             

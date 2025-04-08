@@ -35,10 +35,19 @@
                             required>
                     </div>
                 </div>
-                
-                <div class="mb-4">
-                    <input name="phone" type="number" placeholder="Nomor Telpon"
-                        class="w-full p-2 border rounded" required>
+
+                <div class="grid md:grid-cols-2 gap-x-4">
+                    <div class="mb-4">
+                        <input name="phone" type="number" placeholder="Nomor Telpon"
+                            class="w-full p-2 border rounded" required>
+                    </div>
+                    <div class="mb-4">
+                        <input name="birth_date" type="date" placeholder="Tahun Tanggal Lahir"
+                            class="w-full p-2 border rounded" required>
+                            <label for="alamat" class="block text-sm font-medium text-gray-700"><span
+                                class="text-primary-danger text-xs">*Tahun Tanggal Lahir</span></label>
+                            
+                    </div>
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-x-4">
