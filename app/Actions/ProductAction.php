@@ -36,7 +36,7 @@ class ProductAction
         $data->save();
     }
 
-    public function update(Request $request, $id)
+    public function update($request, $id)
     {
         $data = Product::find($id);
         $data->name = $request['name'];

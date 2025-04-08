@@ -21,7 +21,7 @@
                 <a href="{{ route ('data.katalog') }}"> <i class="menu-icon ti-email"></i>Daftar Produk </a>
             </li>
             <li>
-                <a href="widgets.html"> <i class="menu-icon ti-email"></i>Tambah Produk </a>
+                <a href="{{ route ('data.katalog.tambah') }}"> <i class="menu-icon ti-email"></i>Tambah Produk </a>
             </li>
 
             <h3 class="menu-title">Pesanan</h3>

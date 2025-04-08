@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\CategoryAction;
 use App\Actions\MidtransAction;
+use App\Actions\Order_ItemAction;
 use App\Actions\OrderAction;
 use App\Actions\ProductAction;
 use App\Actions\SystemAction;
@@ -113,5 +115,31 @@ class AdminController extends Controller
     public function catalogues(ProductAction $product_action){
         $datas = $product_action->get();
         return view('admin.catalogue.catalogue', compact('datas'));
+    }
+
+    public function addCatalogue(CategoryAction $category_action){
+        $categories = $category_action->get();
+        return view('admin.catalogue.add', compact('categories'));
+    }
+
+    public function detailCatalogue($id, ProductAction $product_action, CategoryAction $category_action){
+        $data = $product_action->getById($id);
+        $categories = $category_action->get();
+        return view('admin.catalogue.detail', compact('data', 'categories'));
+    }
+
+    public function updateCatalogue(Request $request, $id, ProductAction $product_action, Order_ItemAction $order_ItemAction){
+        // Update
+        $data = [
+            'name' =>$request['name'],
+            'category_id' => $request['category_id']
+        ];
+        $product_action->update($data, $id);
+
+        //Check Order Variant
+        foreach (json_decode($request['deletedVariantIds']) as $variant) {
+            return $order_ItemAction->getBy
+        }
+        return $request;
     }
 }
