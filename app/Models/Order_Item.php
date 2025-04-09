@@ -30,6 +30,6 @@ class Order_Item extends Model
     }
 
     public function product_variant() : HasOne {
-        return $this->hasOne(Product_Variant::class, 'id', 'product_variant_id');
+        return $this->hasOne(Product_Variant::class, 'id', 'product_variant_id')->withTrashed();
     }
 }
