@@ -31,6 +31,27 @@
                                 <strong class="card-title">Data Pesanan</strong>
                             </div>
                             <div class="card-body">
+                                <div class="mb-3">
+                                    <div class="btn-group" role="group" aria-label="Filter Status">
+                                        @php
+                                            $statuses = [
+                                                'Belum Dibayar',
+                                                'Menunggu Konfirmasi',
+                                                'Diproses',
+                                                'Dikirim',
+                                                'Berhasil',
+                                                'Gagal',
+                                            ];
+                                        @endphp
+                                        <button type="button" class="btn btn-secondary active"
+                                            data-status="">Semua</button>
+                                        @foreach ($statuses as $status)
+                                            <button type="button" class="btn btn-secondary"
+                                                data-status="{{ $status }}">{{ $status }}</button>
+                                        @endforeach
+                                    </div>
+                                </div>
+
                                 <table id="bootstrap-data-table-export" class="table table-striped table-bordered">
                                     <thead>
                                         <tr>
@@ -43,7 +64,7 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($datas as $order)
-                                            <tr>
+                                            <tr data-status="{{ $order['status'] }}">
                                                 <td>
                                                     @foreach ($order['order_items'] as $item)
                                                         <li>{{ $item['product_variant']['product']['name'] }} -
@@ -77,8 +98,8 @@
                                                                 href="{{ route('ubah-status.pesanan', ['id' => $order['id'], 'status' => 'Diproses']) }}">Diproses</a>
                                                             <a class="nav-link"
                                                                 href="{{ route('ubah-status.pesanan', ['id' => $order['id'], 'status' => 'Dikirim']) }}">Dikirim</a>
-                                                                <a class="nav-link"
-                                                                    href="{{ route('ubah-status.pesanan', ['id' => $order['id'], 'status' => 'Berhasil']) }}">Berhasil</a>
+                                                            <a class="nav-link"
+                                                                href="{{ route('ubah-status.pesanan', ['id' => $order['id'], 'status' => 'Berhasil']) }}">Berhasil</a>
                                                         </div>
                                                     </div>
                                                     @if ($order['status'] !== 'Belum Dibayar' && $order['status'] !== 'Gagal')
@@ -102,6 +123,40 @@
 </x-layout.admin-v2>
 
 <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll("[id^='created-at-']").forEach(element => {
+            element.textContent = formatDateTime(element.textContent);
+        });
+
+        const buttons = document.querySelectorAll('[data-status]');
+        let activeStatus = "";
+
+        buttons.forEach(button => {
+            button.addEventListener('click', function() {
+                const status = this.getAttribute('data-status');
+
+                // Toggle button active
+                buttons.forEach(btn => btn.classList.remove('active'));
+                if (activeStatus !== status) {
+                    this.classList.add('active');
+                    activeStatus = status;
+                } else {
+                    activeStatus = "";
+                    document.querySelector('[data-status=""]').classList.add('active');
+                }
+
+                document.querySelectorAll('tbody tr').forEach(row => {
+                    const rowStatus = row.getAttribute('data-status');
+                    if (activeStatus === "" || rowStatus === activeStatus) {
+                        row.style.display = "";
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+            });
+        });
+    });
+
     function formatDateTime(dateString) {
         const date = new Date(dateString);
         const dateOptions = {
