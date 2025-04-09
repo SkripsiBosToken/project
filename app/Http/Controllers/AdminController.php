@@ -134,7 +134,41 @@ class AdminController extends Controller
         return view('admin.catalogue.detail', compact('data', 'categories'));
     }
 
-    public function updateCatalogue(Request $request, $id, ProductAction $product_action, Order_ItemAction $order_ItemAction, Product_VariantAction $product_variant_action)
+    public function storeCatalogue(Request $request, ProductAction $product_action, Product_VariantAction $product_variant_action){
+        $data = [
+            'name' => $request->input('name'),
+            'category_id' => $request->input('category_id')
+        ];
+        $product_id = $product_action->create($data);
+
+        if ($request->filled('new_variants')) {
+            foreach ($request->file('new_variants', []) as $key => $files) {
+                $variant = $request->input("new_variants.$key");
+
+                $photos = [];
+                if (isset($files['photos'])) {
+                    foreach ($files['photos'] as $photo) {
+                        $photos[] = '/storage/' . $photo->store('uploads/products', 'public');
+                    }
+                }
+
+                $variant_data = [
+                    'product_id'   => $product_id,
+                    'name_type'    => $variant['name_type'],
+                    'description'  => $variant['description'],
+                    'price'        => $variant['price'],
+                    'stock'        => $variant['stock'],
+                    'photos'       => json_encode($photos),
+                ];
+
+                $product_variant_action->create($variant_data);
+            }
+        }
+
+        return redirect()->route('data.katalog');
+    }
+
+    public function updateCatalogue(Request $request, $id, ProductAction $product_action, Product_VariantAction $product_variant_action)
     {
         $data = [
             'name' => $request->input('name'),
@@ -148,32 +182,22 @@ class AdminController extends Controller
             }
         }
 
-        // Update variant yang ada
         foreach ($request->input('variants', []) as $key => $variant) {
             $variant_model = \App\Models\Product_Variant::find($variant['id']);
             $existing_photos = json_decode($variant_model->photo ?? '[]', true);
 
-            // Ambil daftar foto yang ingin dihapus
             $deleted_photos = json_decode($variant['deletedPhotos'] ?? '[]', true);
 
-            // Hapus dari filesystem
             foreach ($deleted_photos as $photo) {
                 $path = str_replace('/storage/', '', $photo);
                 \Storage::disk('public')->delete($path);
             }
 
-            // Simpan yang tersisa
             $remaining_photos = array_filter($existing_photos, function ($photo) use ($deleted_photos) {
                 return !in_array($photo, $deleted_photos);
             });
 
-            // Tambah foto baru
             $uploaded_photos = [];
-            // if ($request->hasFile("variants.$key.photos")) {
-            //     foreach ($request->file("variants.$key.photos") as $photo) {
-            //         $uploaded_photos[] = '/storage/' . $photo->store('uploads/products', 'public');
-            //     }
-            // }
             if ($request->hasFile("variants.$key.photos")) {
                 foreach ($request->file("variants.$key.photos") as $photo) {
                     $uploaded_photos[] = '/storage/' . $photo->store('uploads/products', 'public');
@@ -219,5 +243,10 @@ class AdminController extends Controller
         }
 
         return redirect()->back()->with('success', 'Data produk berhasil diperbarui.');
+    }
+
+    public function deleteCatalogue($id, ProductAction $product_action){
+        $product_action->delete($id);
+        return redirect()->route('data.katalog');
     }
 }

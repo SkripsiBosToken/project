@@ -1,3 +1,159 @@
 <x-layout.admin-v2>
-    
+    <form action="{{ route('data.katalog.store') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
+        <div class="content mt-3">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header"><strong class="card-title">Data Produk</strong></div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Nama</label>
+                                <input type="text" class="form-control" name="name" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select name="category_id" class="form-control">
+                                    </option>
+                                    @foreach ($categories as $category)
+                                        <option value="{{ $category['id'] }}">{{ $category['name'] }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-success" onclick="addVariantCard()">Tambah Variant</button>
+                    <input type="hidden" name="deletedVariantIds" id="deleted-variant-ids">
+                    <button type="submit" class="btn btn-primary">Simpan Semua</button>
+                </div>
+                <div class="col-lg-6" id="variant-container">
+
+                </div>
+                <template id="variant-template">
+                    <div class="card mb-4 variant-card">
+                        <div class="card-header"><strong class="card-title">Variant Baru</strong></div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Foto Produk</label>
+                                <div id="preview-photos-__INDEX__" class="d-flex flex-wrap gap-2 mb-2"></div>
+
+                                <input type="file" accept="image/*" multiple name="new_variants[__INDEX__][photos][]"
+                                    id="file-input-__INDEX__" class="form-control d-none"
+                                    onchange="previewImage(event, __INDEX__)">
+
+                                <button type="button" class="btn btn-sm btn-primary"
+                                    onclick="document.getElementById('file-input-__INDEX__').click()">
+                                    Tambah Gambar
+                                </button>
+                                <small class="text-muted">Pilih beberapa gambar sekaligus menggunakan Ctrl /
+                                    Shift</small>
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label>Nama</label>
+                                <input type="text" class="form-control" name="new_variants[__INDEX__][name_type]" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Deskripsi</label>
+                                <textarea class="form-control" name="new_variants[__INDEX__][description]" required></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Price</label>
+                                <input type="number" class="form-control" name="new_variants[__INDEX__][price]" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Stock</label>
+                                <input type="number" class="form-control" name="new_variants[__INDEX__][stock]" required>
+                            </div>
+
+                            <button type="button" class="btn btn-danger btn-sm mt-2"
+                                onclick="deleteVariantCard(this)">Hapus Variant</button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </form>
 </x-layout.admin-v2>
+
+<script>
+    let variantCount = 0; // ✅ Tambahkan ini untuk menghitung index variant baru
+    let deletedIds = [];
+    let deletedPhotos = {};
+
+    function removeImage(wrapperId) {
+        const el = document.getElementById(wrapperId);
+        if (el) el.remove();
+    }
+
+    function deletePhoto(photoPath, variantKey, wrapperId) {
+        const el = document.getElementById(wrapperId);
+        if (el) el.remove();
+
+        const input = document.getElementById(`deleted-photos-${variantKey}`);
+
+        let current = [];
+        try {
+            current = JSON.parse(input.value || '[]');
+        } catch (e) {
+            current = [];
+        }
+
+        if (!current.includes(photoPath)) {
+            current.push(photoPath);
+            input.value = JSON.stringify(current);
+        }
+
+        const wrapper = document.getElementById(wrapperId);
+        if (wrapper) {
+            wrapper.style.display = "none";
+        }
+    }
+
+    function previewImage(event, key) {
+        const container = document.getElementById(`preview-photos-${key}`);
+        const files = event.target.files;
+
+        const clonedInput = event.target.cloneNode();
+        clonedInput.style.display = "none";
+        document.querySelector(`#variant-container`).appendChild(clonedInput);
+
+        Array.from(files).forEach((file) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const wrapper = document.createElement('div');
+                wrapper.className = "position-relative d-inline-block me-2 mb-2";
+                wrapper.innerHTML = `
+                    <img src="${e.target.result}" class="border border-primary rounded" style="width:85px; height:85px;">
+                `;
+                container.appendChild(wrapper);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // reset file input agar onchange bisa bekerja lagi
+        event.target.value = "";
+    }
+
+    function addVariantCard() {
+        const template = document.getElementById('variant-template').innerHTML;
+        const newHtml = template.replace(/__INDEX__/g, variantCount);
+        document.getElementById('variant-container').insertAdjacentHTML('beforeend', newHtml);
+        variantCount++;
+    }
+
+    function deleteVariantCard(button, variantId = null) {
+        const card = button.closest('.variant-card');
+        if (variantId) {
+            deletedIds.push(variantId);
+            document.getElementById('deleted-variant-ids').value = JSON.stringify(deletedIds);
+        }
+        card.remove();
+    }
+</script>

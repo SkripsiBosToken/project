@@ -49,7 +49,7 @@
                                                         <button class="btn btn-primary mt-2">
                                                             Detail
                                                         </button></a>
-                                                    <a href="{{ route('detail.pelanggan', ['id' => $item['id']]) }}">
+                                                    <a href="{{ route('data.katalog.hapus', ['id' => $item['id']]) }}">
                                                         <button class="btn btn-danger mt-2">
                                                             Delete
                                                         </button></a>

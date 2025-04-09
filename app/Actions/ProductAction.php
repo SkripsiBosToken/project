@@ -27,13 +27,15 @@ class ProductAction
         return $data;
     }
 
-    public function create(Request $request)
+    public function create($request)
     {
+        $id = Str::uuid()->toString();
         $data = new Product();
-        $data->id = Str::uuid()->toString();
+        $data->id = $id;
         $data->name = $request['name'];
         $data->category_id = $request['category_id'];
         $data->save();
+        return $id;
     }
 
     public function update($request, $id)

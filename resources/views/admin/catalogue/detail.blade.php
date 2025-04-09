@@ -132,6 +132,8 @@
                                     onclick="document.getElementById('file-input-__INDEX__').click()">
                                     Tambah Gambar
                                 </button>
+                                <small class="text-muted">Pilih beberapa gambar sekaligus menggunakan Ctrl /
+                                    Shift</small>
                             </div>
 
                             <div class="form-group mt-3">
@@ -159,7 +161,6 @@
                         </div>
                     </div>
                 </template>
-
             </div>
         </div>
     </form>

@@ -10,7 +10,7 @@
                 </p>
                 <x-button.custom
                     class="px-4 md:px-6 py-2 md:py-3 font-medium md:font-semibold text-sm md:text-lg rounded-md hover:bg-opacity-80"
-                    href="{{ route('catalogue')}}">Show Me Product</x-button.custom>
+                    href="{{ route('catalogue') }}">Show Me Product</x-button.custom>
 
             </div>
             <div class="flex py-4 md:pt-8 space-x-6 mt-6">
@@ -53,15 +53,17 @@
             Catalogue</h2>
         <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 md:gap-x-14 gap-y-4 md:gap-y-0 ">
             @foreach ($products as $product)
-                @if ($product->product_variants->isNotEmpty())
+                @if ($product && $product->product_variants && $product->product_variants->whereNull('deleted_at')->isNotEmpty())
                     @php
-                        $prices = collect($product->product_variants)->pluck('price');
+                        $variants = $product->product_variants->whereNull('deleted_at')->values();
+                        $prices = $variants->pluck('price');
                         $minPrice = $prices->min();
                         $maxPrice = $prices->max();
                     @endphp
+
                     <x-card.product title="{{ $product->name }}"
-                        img="{{ json_decode($product->product_variants[0]->photo, true)[0] }}"
-                        description="{{ $product->product_variants[0]->description }}" :price="$prices->count() === 1 ? $minPrice : [$minPrice, $maxPrice]"
+                        img="{{ json_decode($variants[0]->photo, true)[0] ?? '/placeholder.jpg' }}"
+                        description="{{ $variants[0]->description }}" :price="$prices->count() === 1 ? $minPrice : [$minPrice, $maxPrice]"
                         href="{{ route('catalogue-detail', ['id' => $product->id, 'slug' => Str::slug($product->name)]) }}" />
                 @endif
             @endforeach

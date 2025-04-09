@@ -25,7 +25,7 @@ class Product_Variant extends Model
     ];
 
     public function product() : HasOne {
-        return $this->hasOne(Product::class, 'id', 'product_id');
+        return $this->hasOne(Product::class, 'id', 'product_id')->withTrashed();
     }
 
     public function cart_items() : HasMany {

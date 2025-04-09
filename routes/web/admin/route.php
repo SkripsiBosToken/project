@@ -25,8 +25,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::prefix('catalogue')->group(function () {
            Route::get('catalogues', [AdminController::class, 'catalogues'])->name('data.katalog');
            Route::get('catalogue/add', [AdminController::class, 'addCatalogue'])->name('data.katalog.tambah');
+           Route::put('catalogue/store', [AdminController::class, 'storeCatalogue'])->name('data.katalog.store');
            Route::get('catalogue/{id}', [AdminController::class, 'detailCatalogue'])->name('data.katalog.detail');
            Route::put('catalogue/update/{id}', [AdminController::class, 'updateCatalogue'])->name('data.katalog.update');
+           Route::get('catalogue/delete/{id}', [AdminController::class, 'deleteCatalogue'])->name('data.katalog.hapus');
         });
     });
 });
