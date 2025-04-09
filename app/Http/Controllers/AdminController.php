@@ -6,12 +6,14 @@ use App\Actions\CategoryAction;
 use App\Actions\MidtransAction;
 use App\Actions\Order_ItemAction;
 use App\Actions\OrderAction;
+use App\Actions\Product_VariantAction;
 use App\Actions\ProductAction;
 use App\Actions\SystemAction;
 use App\Actions\TransactionAction;
 use App\Actions\UserAction;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use PhpParser\Node\Stmt\Return_;
 
 class AdminController extends Controller
 {
@@ -39,7 +41,8 @@ class AdminController extends Controller
         return view('admin.order.orders', compact('datas'));
     }
 
-    public function order_detail($id, OrderAction $order_action, UserAction $user_action){
+    public function order_detail($id, OrderAction $order_action, UserAction $user_action)
+    {
         $data = $order_action->getById($id);
         $user = $user_action->getById($data['user_id']);
         return view('admin.order.detail', compact('data', 'user'));
@@ -112,34 +115,109 @@ class AdminController extends Controller
         return $pdf->download('Laporan_Harian_' . $start_date . '-' . $end_date . '.pdf');
     }
 
-    public function catalogues(ProductAction $product_action){
+    public function catalogues(ProductAction $product_action)
+    {
         $datas = $product_action->get();
         return view('admin.catalogue.catalogue', compact('datas'));
     }
 
-    public function addCatalogue(CategoryAction $category_action){
+    public function addCatalogue(CategoryAction $category_action)
+    {
         $categories = $category_action->get();
         return view('admin.catalogue.add', compact('categories'));
     }
 
-    public function detailCatalogue($id, ProductAction $product_action, CategoryAction $category_action){
+    public function detailCatalogue($id, ProductAction $product_action, CategoryAction $category_action)
+    {
         $data = $product_action->getById($id);
         $categories = $category_action->get();
         return view('admin.catalogue.detail', compact('data', 'categories'));
     }
 
-    public function updateCatalogue(Request $request, $id, ProductAction $product_action, Order_ItemAction $order_ItemAction){
-        // Update
+    public function updateCatalogue(Request $request, $id, ProductAction $product_action, Order_ItemAction $order_ItemAction, Product_VariantAction $product_variant_action)
+    {
         $data = [
-            'name' =>$request['name'],
-            'category_id' => $request['category_id']
+            'name' => $request->input('name'),
+            'category_id' => $request->input('category_id')
         ];
         $product_action->update($data, $id);
 
-        //Check Order Variant
-        foreach (json_decode($request['deletedVariantIds']) as $variant) {
-            return $order_ItemAction->getBy
+        if ($request->filled('deletedVariantIds')) {
+            foreach (json_decode($request->input('deletedVariantIds')) as $variant_id) {
+                $product_variant_action->delete($variant_id);
+            }
         }
-        return $request;
+
+        // Update variant yang ada
+        foreach ($request->input('variants', []) as $key => $variant) {
+            $variant_model = \App\Models\Product_Variant::find($variant['id']);
+            $existing_photos = json_decode($variant_model->photo ?? '[]', true);
+
+            // Ambil daftar foto yang ingin dihapus
+            $deleted_photos = json_decode($variant['deletedPhotos'] ?? '[]', true);
+
+            // Hapus dari filesystem
+            foreach ($deleted_photos as $photo) {
+                $path = str_replace('/storage/', '', $photo);
+                \Storage::disk('public')->delete($path);
+            }
+
+            // Simpan yang tersisa
+            $remaining_photos = array_filter($existing_photos, function ($photo) use ($deleted_photos) {
+                return !in_array($photo, $deleted_photos);
+            });
+
+            // Tambah foto baru
+            $uploaded_photos = [];
+            // if ($request->hasFile("variants.$key.photos")) {
+            //     foreach ($request->file("variants.$key.photos") as $photo) {
+            //         $uploaded_photos[] = '/storage/' . $photo->store('uploads/products', 'public');
+            //     }
+            // }
+            if ($request->hasFile("variants.$key.photos")) {
+                foreach ($request->file("variants.$key.photos") as $photo) {
+                    $uploaded_photos[] = '/storage/' . $photo->store('uploads/products', 'public');
+                }
+            }
+
+            $final_photos = array_merge($remaining_photos, $uploaded_photos);
+
+            $variant_data = [
+                'name_type'   => $variant['name_type'],
+                'description' => $variant['description'],
+                'price'       => $variant['price'],
+                'stock'       => $variant['stock'],
+                'photos'      => json_encode($final_photos),
+            ];
+
+            $product_variant_action->update($variant_data, $variant['id']);
+        }
+
+        // Tambahkan variant baru
+        if ($request->filled('new_variants')) {
+            foreach ($request->file('new_variants', []) as $key => $files) {
+                $variant = $request->input("new_variants.$key");
+
+                $photos = [];
+                if (isset($files['photos'])) {
+                    foreach ($files['photos'] as $photo) {
+                        $photos[] = '/storage/' . $photo->store('uploads/products', 'public');
+                    }
+                }
+
+                $variant_data = [
+                    'product_id'   => $id,
+                    'name_type'    => $variant['name_type'],
+                    'description'  => $variant['description'],
+                    'price'        => $variant['price'],
+                    'stock'        => $variant['stock'],
+                    'photos'       => json_encode($photos),
+                ];
+
+                $product_variant_action->create($variant_data);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Data produk berhasil diperbarui.');
     }
 }

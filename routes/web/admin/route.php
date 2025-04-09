@@ -26,7 +26,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
            Route::get('catalogues', [AdminController::class, 'catalogues'])->name('data.katalog');
            Route::get('catalogue/add', [AdminController::class, 'addCatalogue'])->name('data.katalog.tambah');
            Route::get('catalogue/{id}', [AdminController::class, 'detailCatalogue'])->name('data.katalog.detail');
-           Route::post('catalogue/update/{id}', [AdminController::class, 'updateCatalogue'])->name('data.katalog.update');
+           Route::put('catalogue/update/{id}', [AdminController::class, 'updateCatalogue'])->name('data.katalog.update');
         });
     });
 });

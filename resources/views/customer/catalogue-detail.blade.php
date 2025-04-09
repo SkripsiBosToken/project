@@ -1,7 +1,7 @@
 <x-layout.customer>
     <div class="my-10 md:my-14">
         <div class="grid grid-cols-1 md:grid-cols-12 gap-6" x-data="{
-            selectedVariant: {{ json_encode($product['product_variants'][0]) }},
+            selectedVariant: {{ json_encode($product['product_variants']->whereNull('deleted_at')->first()) }},
             quantity: 1,
             selectedImageIndex: 0,
             updateVariant(variant) {
@@ -45,7 +45,7 @@
                     </p>
 
                     <div class="mt-4 flex gap-2 flex-wrap">
-                        @foreach ($product['product_variants'] as $product_variant)
+                        @foreach ($product['product_variants']->whereNull('deleted_at') as $product_variant)
                             <button @click="updateVariant({{ json_encode($product_variant) }})"
                                 class="px-3 py-2 border rounded-md text-sm md:text-lg transition"
                                 :class="selectedVariant.name_type === '{{ $product_variant->name_type }}' ?
@@ -112,7 +112,7 @@
         </h2>
         <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-10">
             @foreach ($products as $product)
-                @if ($product->product_variants->isNotEmpty())
+                @if ($product['product_variants']->whereNull('deleted_at')->isEmpty())
                     @php
                         $prices = collect($product->product_variants)->pluck('price');
                         $minPrice = $prices->min();

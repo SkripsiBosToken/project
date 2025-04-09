@@ -29,7 +29,7 @@ class Order_ItemAction
    public function getByVariant($product_variant_id)
    {
       $data = Order_Item::where('product_variant_id', $product_variant_id)->get();
-      return;
+      return $data;
    }
 
    public function create($request)
