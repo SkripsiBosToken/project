@@ -75,8 +75,10 @@
                                                 </td>
                                                 <td>{{ $order['status'] }}</td>
                                                 <td>{{ 'Rp ' . number_format($order['total_price'], 0, ',', '.') }}</td>
-                                                <td id="created-at-{{ $order['id'] }}">{{ $order['created_at'] }}</td>
-
+                                                {{-- <td id="created-at-{{ $order['id'] }}">
+                                                    {{ \Carbon\Carbon::parse($order['created_at'])->toIso8601String() }}
+                                                </td> --}}
+                                                <td id="created-at-{{ $order['id'] }}">{{ \Carbon\Carbon::parse($order['created_at'])->translatedFormat('d F Y, H:i:s') }}</td>
                                                 <td class="flex flex-row gap-x-2">
                                                     <a href="{{ route('detail.pesanan', ['id' => $order['id']]) }}">
                                                         <button class="btn btn-primary mt-2">
@@ -159,6 +161,8 @@
 
     function formatDateTime(dateString) {
         const date = new Date(dateString);
+        if (isNaN(date)) return "Invalid Date";
+
         const dateOptions = {
             day: 'numeric',
             month: 'long',
@@ -170,12 +174,7 @@
             second: 'numeric',
             hour12: false
         };
+
         return date.toLocaleDateString('id-ID', dateOptions) + ', ' + date.toLocaleTimeString('id-ID', timeOptions);
     }
-
-    document.addEventListener("DOMContentLoaded", function() {
-        document.querySelectorAll("[id^='created-at-']").forEach(element => {
-            element.textContent = formatDateTime(element.textContent);
-        });
-    });
 </script>

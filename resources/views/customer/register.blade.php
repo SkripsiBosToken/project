@@ -44,9 +44,9 @@
                     <div class="mb-4">
                         <input name="birth_date" type="date" placeholder="Tahun Tanggal Lahir"
                             class="w-full p-2 border rounded" required>
-                            <label for="alamat" class="block text-sm font-medium text-gray-700"><span
+                        <label for="alamat" class="block text-sm font-medium text-gray-700"><span
                                 class="text-primary-danger text-xs">*Tahun Tanggal Lahir</span></label>
-                            
+
                     </div>
                 </div>
 

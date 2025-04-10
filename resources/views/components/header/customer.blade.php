@@ -42,7 +42,7 @@
                             class="block px-4 py-2 text-sm text-primary-gray hover:bg-primary hover:text-white">
                             Order
                         </a>
-                        <a href="#"
+                        <a href="{{route('profile')}}"
                             class="block px-4 py-2 text-sm text-primary-gray hover:bg-primary hover:text-white">
                             Profile
                         </a>

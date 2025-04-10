@@ -10,11 +10,10 @@
                 alt="Logo"></a>
     </div>
 
-    {{-- <div id="main-menu" class="main-menu collapse navbar-collapse"> --}}
     <div class="main-menu">
         <ul class="nav navbar-nav">
             <li class="active">
-                <a href="index.html"> <i class="menu-icon fa fa-dashboard"></i>Dashboard </a>
+                <a href="{{ route ('dashboard') }}"> <i class="menu-icon fa fa-dashboard"></i>Dashboard </a>
             </li>
             <h3 class="menu-title">Produk & Katalog</h3><!-- /.menu-title -->
             <li>
@@ -37,6 +36,11 @@
             <h3 class="menu-title">Laporan Penjualan</h3>
             <li>
                 <a href="{{ route('data.riwayat.pesanan') }}"> <i class="menu-icon ti-email"></i>Semua Laporan</a>
+            </li>
+
+            <h3 class="menu-title">Sistem</h3>
+            <li>
+                <a href="{{ route('data.riwayat.pesanan') }}"> <i class="menu-icon ti-email"></i>Pengaturan</a>
             </li>
         </ul>
     </div>

@@ -38,6 +38,16 @@ class UserAction
       return $data;
    }
 
+   public function update($id, $request){
+      $data = User::find($id);
+      $data->name = $request['name'];
+      $data->address = $request['address'];
+      $data->phone_number = $request['phone_number'];
+      $data->birth_date = $request['birth_date'];
+      
+      $data->save();
+   }
+
    public function create($request)
    {
       $data = new User();

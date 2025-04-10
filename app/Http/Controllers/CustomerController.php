@@ -306,10 +306,33 @@ class CustomerController extends Controller
     public function order_detail($id, TransactionAction $transaction_action, MidtransAction $midtrans_action, OrderAction $order_action, UserAction $user_action)
     {
         $invoiceData = $transaction_action->getByOrderId($id);
-        // $invoice = $midtrans_action->getInvoice($invoiceData['invoice_id']);
         $transaction = $midtrans_action->getTransaction($invoiceData['transaction_id']);
         $order = $order_action->getById($id);
         $user = $user_action->getById($order['user_id']);
         return view('customer.order-detail', compact('order', 'user', 'transaction'));
+    }
+
+    public function profile(AuthAction $auth_action){
+        $data = $auth_action->getuser();
+        return view('customer.profile', compact('data'));
+    }
+
+    public function updateProfile(Request $request, AuthAction $auth_action, UserAction $user_action){
+        $user = $auth_action->getuser();
+        
+        $data = [
+            'name' => $request['name'],
+            'address' => json_encode([
+                "address" => $request['address'],
+                "latitude" => $request['latitude'],
+                "longitude" => $request['longitude'],
+                "postal_code" => $request['postal_code'],
+            ]),
+            'phone_number' => $request['phone'],
+            'birth_date' => $request['birth_date']
+        ];
+
+        $user_action->update($user['id'], $data);
+        return redirect()->route('profile');
     }
 }
