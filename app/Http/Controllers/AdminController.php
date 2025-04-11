@@ -8,6 +8,7 @@ use App\Actions\Order_ItemAction;
 use App\Actions\OrderAction;
 use App\Actions\Product_VariantAction;
 use App\Actions\ProductAction;
+use App\Actions\RateAction;
 use App\Actions\SystemAction;
 use App\Actions\UserAction;
 use Illuminate\Http\Request;
@@ -562,5 +563,10 @@ class AdminController extends Controller
     public function deleteCategory($id, CategoryAction $category_action){
         $category_action->delete($id);
         return redirect()->route('data.kategori');
+    }
+
+    public function rates(RateAction $rate_action){
+        $datas = $rate_action->get();
+        return view('admin.user.rate', compact('datas'));
     }
 }

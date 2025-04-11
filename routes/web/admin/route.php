@@ -10,6 +10,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
         Route::prefix('user')->group(function () {
             Route::get('users', [AdminController::class, 'users'])->name('data.pelanggan');
+            Route::get('user/rate', [AdminController::class, 'rates'])->name('data.rate');
             Route::get('user/{id}', [AdminController::class, 'users_detail'])->name('detail.pelanggan');
         });
 

@@ -39,7 +39,9 @@
             <li>
                 <a href="{{ route('data.pelanggan') }}"> <i class="menu-icon ti-user"></i>Daftar Pelanggan</a>
             </li>
-
+            <li>
+                <a href="{{ route('data.rate') }}"> <i class="menu-icon ti-star"></i>Rating Pelanggan</a>
+            </li>
             <h3 class="menu-title">Laporan Penjualan</h3>
             <li>
                 <a href="{{ route('data.riwayat.pesanan') }}"> <i class="menu-icon ti-notepad"></i>Semua Laporan</a>

@@ -69,7 +69,7 @@ class GuestController extends Controller
     public function about(SystemAction $system_action, RateAction $rate_action)
     {
         $setting = $system_action->get();
-        $rates = $rate_action->get(3);
+        $rates = $rate_action->getWithNum(3);
         return view('customer.about', compact('setting', 'rates'));
     }
 
