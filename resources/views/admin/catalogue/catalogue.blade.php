@@ -37,6 +37,7 @@
                                             <th>Name</th>
                                             <th>Category</th>
                                             <th>Pembelian</th>
+                                            <th>Varian</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -46,6 +47,7 @@
                                                 <td>{{ $item['name'] }}</td>
                                                 <td>{{ $item['category']['name'] }}</td>
                                                 <td>{{ $item['qty'] }}</td>
+                                                <td>{{ count($item['product_variants']) }}</td>
                                                 <td class="flex flex-row gap-x-2">
                                                     <a href="{{ route('data.katalog.detail', ['id' => $item['id']]) }}">
                                                         <button class="btn btn-primary mt-2">

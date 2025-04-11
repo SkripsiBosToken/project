@@ -69,8 +69,11 @@
                             <span>Total payment bill</span>
                             <span>Rp <span x-text="(getSubtotal(cartItems)).toLocaleString('id-ID')"></span></span>
                         </div>
-                        <button type="submit" class="w-full bg-primary text-white py-2 rounded-lg mt-4">Check
-                            Out</button>
+                        <button type="submit" class="w-full bg-primary text-white py-2 rounded-lg mt-4"
+                            :class="{ 'opacity-50 cursor-not-allowed': getSubtotal(cartItems) === 0 }"
+                            :disabled="getSubtotal(cartItems) === 0">
+                            Check Out
+                        </button>
                     </x-form.custom>
                 </div>
             </div>
