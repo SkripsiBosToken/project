@@ -22,7 +22,7 @@ class UserAction
 
    public function getById($id)
    {
-      $data = User::with('orders.order_items.cart.cart_items.product_variant.product', 'orders.order_items.product_variant.product')->find($id);
+      $data = User::with('orders.transaction', 'orders.order_items.cart.cart_items.product_variant.product', 'orders.order_items.product_variant.product')->find($id);
       return $data;
    }
 

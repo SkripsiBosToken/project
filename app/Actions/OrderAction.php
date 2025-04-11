@@ -70,4 +70,8 @@ class OrderAction
         $data->status = $status;
         $data->save();
     }
+
+    public function delete($id){
+        Order::find($id)->delete();
+    }
 }

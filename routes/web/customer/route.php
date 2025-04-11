@@ -28,6 +28,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('checkout/payment', [CustomerController::class, 'checkout_order'])->name('checkout.payment');
     Route::get('payment/{id}', [CustomerController::class, 'payment'])->name('payment');
+    Route::get('cancel-payment/{id}', [CustomerController::class, 'cancelPayment'])->name('cancel.payment');
 
     Route::get('order-list', [CustomerController::class, 'order_list'])->name('order-list');
     Route::get('order-detail/{id}', [CustomerController::class, 'order_detail'])->name('order-detail');

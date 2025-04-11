@@ -43,7 +43,14 @@
                         </a>
                         <template x-if="item.status === 'Belum Dibayar'">
                             <a x-bind:href="'/payment/' + item.id">
-                                <button class="border border-primary text-primary px-2 py-1 rounded-md">Lihat Cara Bayar</button>
+                                <button class="border border-primary text-primary px-2 py-1 rounded-md">Lihat Cara
+                                    Bayar</button>
+                            </a>
+                        </template>
+                        <template x-if="item.status === 'Belum Dibayar'">
+                            <a x-bind:href="'/cancel-payment/' + item.id">
+                                <button class="border border-primary text-primary px-2 py-1 rounded-md">Batalkan
+                                    Pesanan</button>
                             </a>
                         </template>
                     </div>

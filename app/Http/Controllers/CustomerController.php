@@ -225,10 +225,10 @@ class CustomerController extends Controller
         $transaction_action->create($transaction);
 
         if (in_array($request['type'], ['buy-cart', 'buy-directly'])) {
-            $cartId = ($request['type'] === 'buy-cart') 
-                ? $cart_action->getByUser($auth_action->getuser()['id'])[0]['id'] 
+            $cartId = ($request['type'] === 'buy-cart')
+                ? $cart_action->getByUser($auth_action->getuser()['id'])[0]['id']
                 : null;
-        
+
             foreach ($item_details as $item) {
                 if ($item['id'] !== 'shipping-cost') {
                     $order_item_action->create([
@@ -243,7 +243,7 @@ class CustomerController extends Controller
                     $product_variant_action->updateStock($item['id'], ($getToUpdateStock['stock'] - $item['quantity']));
                 }
             }
-    
+
             if ($request['type'] === 'buy-cart') {
                 $cart_item_action->deleteByCartId($cartId);
             }
@@ -312,14 +312,16 @@ class CustomerController extends Controller
         return view('customer.order-detail', compact('order', 'user', 'transaction'));
     }
 
-    public function profile(AuthAction $auth_action){
+    public function profile(AuthAction $auth_action)
+    {
         $data = $auth_action->getuser();
         return view('customer.profile', compact('data'));
     }
 
-    public function updateProfile(Request $request, AuthAction $auth_action, UserAction $user_action){
+    public function updateProfile(Request $request, AuthAction $auth_action, UserAction $user_action)
+    {
         $user = $auth_action->getuser();
-        
+
         $data = [
             'name' => $request['name'],
             'address' => json_encode([
@@ -334,5 +336,25 @@ class CustomerController extends Controller
 
         $user_action->update($user['id'], $data);
         return redirect()->route('profile');
+    }
+
+    public function cancelPayment($id, AuthAction $auth_action, OrderAction $order_action, Order_ItemAction $order_item_action, MidtransAction $midtrans_action, Product_VariantAction $product_variant_action, TransactionAction $transaction_action)
+    {
+        $orders = $auth_action->getuser()['orders'];
+
+        foreach ($orders as $value) {
+            if ($id == $value['id']) {
+                $midtrans_action->cancelTransaction($value['transaction_id']);
+
+                foreach ($value['order_items'] as $variant) {
+                    $product_variant_action->updateStock($variant['product_variant_id'], ($variant['quantity'] + $variant['product_variant']['stock']));
+                    $order_item_action->delete($variant['id']);
+                }
+                $transaction_id = $order_action->getById($value['id'])['transaction']['id'];
+                $transaction_action->delete($transaction_id);
+                $order_action->delete($value['id']);
+            }
+        }
+        return redirect()->route('order-list');
     }
 }

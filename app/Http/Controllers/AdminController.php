@@ -390,7 +390,6 @@ class AdminController extends Controller
                     }
                 }
             }
-
             $datas[$key]['qty'] = $qty;
         }
 

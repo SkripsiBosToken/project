@@ -58,4 +58,8 @@ class Order_ItemAction
       $data->product_variant_id = $request['product_variant_id'];
       $data->save();
    }
+
+   public function delete($id){
+      Order_Item::find($id)->delete();
+  }
 }
