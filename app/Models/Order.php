@@ -33,4 +33,7 @@ class Order extends Model
         return $this->hasOne(User::class, 'id', 'user_id');
     }
 
+    public function rate() : HasOne {
+        return $this->hasOne(Rate::class, 'id', 'order_id');
+    }
 }

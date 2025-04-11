@@ -15,10 +15,15 @@ class Rate extends Model
     protected $fillable = [
         'rate',
         'message',
-        'user_id'
+        'user_id',
+        'order_id'
     ];
 
     public function user() : HasOne {
         return $this->hasOne(User::class, 'id', 'user_id');
+    }
+    
+    public function order() : HasOne {
+        return $this->hasOne(Order::class, 'id', 'order_id');
     }
 }

@@ -11,6 +11,7 @@ use App\Actions\MidtransAction;
 use App\Actions\Order_ItemAction;
 use App\Actions\OrderAction;
 use App\Actions\Product_VariantAction;
+use App\Actions\RateAction;
 use App\Actions\SystemAction;
 use App\Actions\TransactionAction;
 use App\Actions\UserAction;
@@ -297,9 +298,13 @@ class CustomerController extends Controller
         return $shippingCost;
     }
 
-    public function order_list(AuthAction $auth_action)
+    public function order_list(AuthAction $auth_action, RateAction $rate_action)
     {
         $datas = $auth_action->getuser()->orders;
+        foreach ($datas as $key => $value) {
+            $rate = $rate_action->getByOrder($value['id']);
+            $datas[$key]['rate'] = $rate;
+        }
         return view('customer.order-list', compact('datas'));
     }
 
@@ -343,7 +348,7 @@ class CustomerController extends Controller
         $orders = $auth_action->getuser()['orders'];
 
         foreach ($orders as $value) {
-            if ($id == $value['id']) {
+            if ($id == $value['id'] && $value['status'] == 'Belum Dibayar') {
                 $midtrans_action->cancelTransaction($value['transaction_id']);
 
                 foreach ($value['order_items'] as $variant) {
@@ -355,6 +360,18 @@ class CustomerController extends Controller
                 $order_action->delete($value['id']);
             }
         }
+        return redirect()->route('order-list');
+    }
+
+    public function submitReview(Request $request, RateAction $rate_action, AuthAction $auth_action){
+        $user_id = $auth_action->getuser()['id'];
+        $data = [
+            'user_id' => $user_id,
+            'rate' => $request['rate'],
+            'message' => $request['message'],
+            'order_id' => $request['order_id']
+        ];
+        $rate_action->create($data);
         return redirect()->route('order-list');
     }
 }

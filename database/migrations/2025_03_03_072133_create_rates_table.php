@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('rate');
             $table->string('message');
             $table->foreignUuid('user_id')->references('id')->on('users');
+            $table->foreignUuid('order_id')->nullable()->references('id')->on('orders');
             $table->timestamps();
         });
     }

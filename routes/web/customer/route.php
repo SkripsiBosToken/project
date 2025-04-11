@@ -36,5 +36,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('profile', [CustomerController::class, 'profile'])->name('profile');
     Route::post('profile', [CustomerController::class, 'updateProfile'])->name('profile.update');
 
+    Route::post('/submit-review', [CustomerController::class, 'submitReview']);
+
     Route::get('logout', [CustomerController::class, 'logout'])->name('logout');
 });

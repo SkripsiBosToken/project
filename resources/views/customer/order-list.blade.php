@@ -1,9 +1,46 @@
 <x-layout.customer>
-    <div class="my-10 md:my-14 font-poppins px-4 md:px-8" x-data="{
+    {{-- <div class="my-10 md:my-14 font-poppins px-4 md:px-8" x-data="{
         items: {{ json_encode($datas) }},
         activeStatus: '',
         setStatus(status) {
             this.activeStatus = this.activeStatus === status ? '' : status;
+        }
+    }"> --}}
+
+    <div class="my-10 md:my-14 font-poppins px-4 md:px-8" x-data="{
+        items: {{ json_encode($datas) }},
+        activeStatus: '',
+        selectedReviewOrderId: null,
+        reviewContent: '',
+        rating: 0,
+    
+        setStatus(status) {
+            this.activeStatus = this.activeStatus === status ? '' : status;
+        },
+    
+        selectReview(orderId) {
+            this.selectedReviewOrderId = orderId;
+            this.reviewContent = '';
+            this.rating = 0;
+        },
+    
+        submitReview(orderId) {
+            fetch('/submit-review', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        order_id: orderId,
+                        content: this.reviewContent,
+                        rating: this.rating
+                    })
+                }).then(res => res.json())
+                .then(res => {
+                    alert('Review berhasil dikirim!');
+                    this.selectedReviewOrderId = null;
+                });
         }
     }">
 
@@ -53,6 +90,45 @@
                                     Pesanan</button>
                             </a>
                         </template>
+                        <template x-if="item.status === 'Berhasil' && Object.keys(item.rate).length === 0">
+                            <div>
+                                <template x-if="selectedReviewOrderId !== item.id">
+                                    <button @click="selectReview(item.id)"
+                                        class="border border-primary text-primary px-2 py-1 rounded-md mt-2">
+                                        Tulis Review
+                                    </button>
+                                </template>
+                        
+                                <template x-if="selectedReviewOrderId === item.id">
+                                    <form :action="'/submit-review'" method="POST" class="mt-2 border p-2 rounded-md">
+                                        @csrf
+                                        <input type="hidden" name="order_id" :value="item.id">
+                                        <input type="hidden" name="rate" :value="rating">
+                                        <label class="block text-sm font-semibold mb-1">Rating:</label>
+                                        <div class="flex gap-1 mb-2">
+                                            <template x-for="star in 5">
+                                                <span @click="rating = star" class="cursor-pointer text-2xl"
+                                                      :class="rating >= star ? 'text-yellow-400' : 'text-gray-300'">
+                                                    ★
+                                                </span>
+                                            </template>
+                                        </div>
+                                
+                                        <textarea name="message" x-model="reviewContent" rows="3" placeholder="Tulis ulasan..."
+                                            class="w-full border p-2 rounded mb-2"></textarea>
+                                
+                                        <div class="flex justify-end gap-2">
+                                            <button @click.prevent="selectedReviewOrderId = null"
+                                                class="text-sm px-3 py-1 border border-gray-400 rounded-md">Batal</button>
+                                            <button type="submit"
+                                                class="text-sm px-3 py-1 bg-primary text-white rounded-md">Kirim</button>
+                                        </div>
+                                    </form>
+                                </template>
+                                
+                            </div>
+                        </template>
+                        
                     </div>
 
                     <div class="text-center md:ml-auto mr-auto">
