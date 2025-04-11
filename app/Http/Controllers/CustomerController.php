@@ -239,6 +239,8 @@ class CustomerController extends Controller
                         'cart_id' => $cartId,
                         'product_variant_id' => $item['id']
                     ]);
+                    $getToUpdateStock = $product_variant_action->getById($item['id']);
+                    $product_variant_action->updateStock($item['id'], ($getToUpdateStock['stock'] - $item['quantity']));
                 }
             }
     
@@ -269,8 +271,6 @@ class CustomerController extends Controller
     {
         return $midtrans_action->callback($request);
     }
-
-    // Iterasi II
 
     public function calculateShippingCost($latitude, $longitude)
     {

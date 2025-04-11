@@ -113,7 +113,7 @@ class DatabaseSeeder extends Seeder
             'logo' => 'test',
             'visi' => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
             'misi' => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
-            'special_product' => '["' . $product_id_1 . '", "' . $product_id_2 . '"]',
+            'special_product' => '["' . $product_id_1 . '", "' . $product_id_2 . '", "' . $product_id_1 . '", "' . $product_id_2 . '"]',
             'our_customer' => '[{"name" : "Pop Hotel", "logo" : "/assets/images/logo/pop.png", "href" : "https://www.instagram.com/kusukacatering/"}, {"name" : "Fave Hotel", "logo" : "/assets/images/logo/fave.png", "href" : "https://www.instagram.com/kusukacatering/"}, {"name" : "Neo Hotel", "logo" : "/assets/images/logo/neo.png", "href" : "https://www.instagram.com/kusukacatering/"}, {"name" : "Prime Hotel", "logo" : "/assets/images/logo/prime.png", "href" : "https://www.instagram.com/kusukacatering/"}]',
             'our_coverage' => '[{ "lat": "-7.9666", "lng": "112.6326", "radius": "5000" }, { "lat": "-7.9750", "lng": "112.6450", "radius": "3000" }]',
             'social_media' => '[{"name" : "Instagram", "logo" : "test", "href" : "https://www.instagram.com/kusukacatering/"}]',

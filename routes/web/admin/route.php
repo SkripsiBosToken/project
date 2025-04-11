@@ -30,5 +30,22 @@ Route::middleware(['auth', 'admin'])->group(function () {
            Route::put('catalogue/update/{id}', [AdminController::class, 'updateCatalogue'])->name('data.katalog.update');
            Route::get('catalogue/delete/{id}', [AdminController::class, 'deleteCatalogue'])->name('data.katalog.hapus');
         });
+
+        Route::prefix('system')->group(function () {
+            Route::get('setting', [AdminController::class, 'setting'])->name('setting');
+            Route::put('setting/update', [AdminController::class, 'updateSetting'])->name('system.update');
+
+            Route::get('setting/special-product', [AdminController::class, 'specialProduct'])->name('setting.special-product');
+            Route::put('setting/special-product/update', [AdminController::class, 'updateSpecialSetting'])->name('system.special-product.update');
+            
+            Route::get('setting/customer', [AdminController::class, 'ourCustomer'])->name('setting.customer');
+            Route::put('setting/customer/update', [AdminController::class, 'updateOurCustomer'])->name('system.customer.update');
+
+            Route::get('setting/social-media', [AdminController::class, 'socialMedia'])->name('setting.social-media');
+            Route::put('setting/social-media/update', [AdminController::class, 'updateSocialMedia'])->name('system.social-media.update');
+            
+            Route::get('setting/event', [AdminController::class, 'event'])->name('setting.event');
+            Route::put('setting/event/update', [AdminController::class, 'updateEvent'])->name('system.event.update');
+        });
     });
 });

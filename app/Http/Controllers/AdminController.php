@@ -9,11 +9,9 @@ use App\Actions\OrderAction;
 use App\Actions\Product_VariantAction;
 use App\Actions\ProductAction;
 use App\Actions\SystemAction;
-use App\Actions\TransactionAction;
 use App\Actions\UserAction;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
-use PhpParser\Node\Stmt\Return_;
 
 class AdminController extends Controller
 {
@@ -24,7 +22,7 @@ class AdminController extends Controller
         $orders = $order_action->get();
 
         $progressOrders = $orders->whereIn('status', ['Menunggu Konfirmasi', 'Diproses', 'Dikirim'])->count();
-        $successfulOrders = $orders->where('status', 'Berhasil');
+        $successfulOrders = $orders->whereIn('status', ['Menunggu Konfirmasi', 'Diproses', 'Dikirim', 'Berhasil']);
         $successOrders = $successfulOrders->count();
         $daily = $successfulOrders->filter(function ($order) {
             return $order->created_at >= now()->startOfDay() && $order->created_at <= now()->endOfDay();
@@ -44,6 +42,246 @@ class AdminController extends Controller
 
         return view('admin.dashboard', compact('daily', 'weekly', 'monthly', 'yearly', 'user', 'progressOrders', 'successOrders', 'product'));
     }
+
+    public function setting(SystemAction $system_action)
+    {
+        $system = $system_action->get();
+        return view('admin.setting.setting', compact('system'));;
+    }
+
+    public function specialProduct(SystemAction $system_action, ProductAction $product_action)
+    {
+        $specialProduct = [];
+        $products = $product_action->get();
+        $datas = json_decode($system_action->get()['special_product'], true);
+        foreach ($datas as $key => $item) {
+            $product = $product_action->getById($item);
+            $data = [
+                'product_id' => $item,
+                'product' => $product
+            ];
+            array_push($specialProduct, $data);
+        }
+        return view('admin.setting.special-product', compact('specialProduct', 'products'));;
+    }
+
+    public function ourCustomer(SystemAction $system_action)
+    {
+        $customers = json_decode($system_action->get()['our_customer'], true);
+        return view('admin.setting.customer', compact('customers'));;
+    }
+
+    public function socialMedia(SystemAction $system_action)
+    {
+        $medias = json_decode($system_action->get()['social_media'], true);
+        return view('admin.setting.social-media', compact('medias'));;
+    }
+
+    public function event(SystemAction $system_action)
+    {
+        $events = json_decode($system_action->get()['promo_event'], true);
+        return view('admin.setting.event', compact('events'));;
+    }
+
+    public function updateSetting(Request $request, SystemAction $system_action)
+    {
+        $oldData = $system_action->get();
+
+        $office_address = [
+            'address' => $request->input('address'),
+            'postal_code' => $request->input('postal_code'),
+            'latitude' => $request->input('latitude'),
+            'longitude' => $request->input('longitude'),
+        ];
+
+        $data = [
+            'name' => $request->input('name'),
+            'phone_number' => $request->input('phone_number'),
+            'visi' => $request->input('visi'),
+            'misi' => $request->input('misi'),
+            'office_address' => json_encode($office_address)
+        ];
+
+        if ($request->hasFile('logo')) {
+            if ($oldData && $oldData->logo) {
+                $oldLogoPath = str_replace('/storage/', '', $oldData->logo);
+                if (\Storage::disk('public')->exists($oldLogoPath)) {
+                    \Storage::disk('public')->delete($oldLogoPath);
+                }
+            }
+
+            $path = $request->file('logo')->store('uploads/logo', 'public');
+            $data['logo'] = '/storage/' . $path;
+        }
+
+        $system_action->update($data);
+
+        return redirect()->back()->with('success', 'Pengaturan berhasil diperbarui.');
+    }
+
+    public function updateSpecialSetting(Request $request, SystemAction $system_action)
+    {
+        $specialProduct = array($request['product_01'], $request['product_02'], $request['product_03'], $request['product_04']);
+        $system_action->update(['special_product' => json_encode($specialProduct)]);
+        return redirect()->back()->with('success', 'Pengaturan berhasil diperbarui.');
+    }
+
+    public function updateOurCustomer(Request $request, SystemAction $system_action)
+    {
+        $system = $system_action->get();
+        $customers = json_decode($system->our_customer, true) ?? [];
+        $deletedIndexes = json_decode($request->input('deleted_customer_indexes'), true) ?? [];
+
+        foreach ($deletedIndexes as $index) {
+            if (isset($customers[$index]['logo'])) {
+                $logoPath = public_path(str_replace('/storage/', 'storage/', $customers[$index]['logo']));
+                if (file_exists($logoPath)) {
+                    unlink($logoPath);
+                }
+            }
+            unset($customers[$index]);
+        }
+        if ($request->has('customers')) {
+            foreach ($request->customers as $index => $customerData) {
+                $customers[$index]['name'] = $customerData['name'] ?? $customers[$index]['name'];
+                $customers[$index]['href'] = $customerData['href'] ?? '';
+
+                if (isset($customerData['logo']) && $request->file("customers.$index.logo")) {
+                    // Hapus logo lama
+                    if (isset($customers[$index]['logo'])) {
+                        $oldLogo = public_path(str_replace('/storage/', 'storage/', $customers[$index]['logo']));
+                        if (file_exists($oldLogo)) unlink($oldLogo);
+                    }
+
+                    $path = $request->file("customers.$index.logo")->store('uploads/customers', 'public');
+                    $customers[$index]['logo'] = '/storage/' . $path;
+                }
+            }
+        }
+        if ($request->has('new_customers')) {
+            foreach ($request->new_customers as $new) {
+                $path = null;
+                if (isset($new['logo']) && $new['logo'] instanceof \Illuminate\Http\UploadedFile) {
+                    $path = '/storage/' . $new['logo']->store('uploads/customers', 'public');
+                }
+
+                $customers[] = [
+                    'name' => $new['name'] ?? '',
+                    'href' => $new['href'] ?? '',
+                    'logo' => $path,
+                ];
+            }
+        }
+        $system->our_customer = json_encode(array_values($customers)); // Reindex
+        $system->save();
+
+        return redirect()->back()->with('success', 'Data pelanggan berhasil diperbarui.');
+    }
+
+    public function updateSocialMedia(Request $request, SystemAction $system_action)
+    {
+        $system = $system_action->get();
+        $customers = json_decode($system->social_media, true) ?? [];
+        $deletedIndexes = json_decode($request->input('deleted_customer_indexes'), true) ?? [];
+
+        foreach ($deletedIndexes as $index) {
+            if (isset($customers[$index]['logo'])) {
+                $logoPath = public_path(str_replace('/storage/', 'storage/', $customers[$index]['logo']));
+                if (file_exists($logoPath)) {
+                    unlink($logoPath);
+                }
+            }
+            unset($customers[$index]);
+        }
+        if ($request->has('customers')) {
+            foreach ($request->customers as $index => $customerData) {
+                $customers[$index]['name'] = $customerData['name'] ?? $customers[$index]['name'];
+                $customers[$index]['href'] = $customerData['href'] ?? '';
+
+                if (isset($customerData['logo']) && $request->file("customers.$index.logo")) {
+                    if (isset($customers[$index]['logo'])) {
+                        $oldLogo = public_path(str_replace('/storage/', 'storage/', $customers[$index]['logo']));
+                        if (file_exists($oldLogo)) unlink($oldLogo);
+                    }
+
+                    $path = $request->file("customers.$index.logo")->store('uploads/customers', 'public');
+                    $customers[$index]['logo'] = '/storage/' . $path;
+                }
+            }
+        }
+        if ($request->has('new_customers')) {
+            foreach ($request->new_customers as $new) {
+                $path = null;
+                if (isset($new['logo']) && $new['logo'] instanceof \Illuminate\Http\UploadedFile) {
+                    $path = '/storage/' . $new['logo']->store('uploads/customers', 'public');
+                }
+
+                $customers[] = [
+                    'name' => $new['name'] ?? '',
+                    'href' => $new['href'] ?? '',
+                    'logo' => $path,
+                ];
+            }
+        }
+        $system->social_media = json_encode(array_values($customers)); // Reindex
+        $system->save();
+
+        return redirect()->back()->with('success', 'Data pelanggan berhasil diperbarui.');
+    }
+
+    public function updateEvent(Request $request, SystemAction $system_action)
+    {
+        $system = $system_action->get();
+        $events = json_decode($system->promo_event, true) ?? [];
+        $deletedIndexes = json_decode($request->input('deleted_customer_indexes'), true) ?? [];
+        foreach ($deletedIndexes as $index) {
+            if (isset($events[$index]['banner'])) {
+                $oldPath = public_path(str_replace('/storage/', 'storage/', $events[$index]['banner']));
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
+            }
+            unset($events[$index]);
+        }
+
+        if ($request->has('customers')) {
+            foreach ($request->customers as $index => $item) {
+                $events[$index]['name'] = $item['name'] ?? $events[$index]['name'];
+                $events[$index]['href'] = $item['href'] ?? $events[$index]['href'];
+
+                if ($request->hasFile("customers.$index.banner")) {
+                    if (isset($events[$index]['banner'])) {
+                        $oldPath = public_path(str_replace('/storage/', 'storage/', $events[$index]['banner']));
+                        if (file_exists($oldPath)) unlink($oldPath);
+                    }
+
+                    $newPath = $request->file("customers.$index.banner")->store('uploads/events', 'public');
+                    $events[$index]['banner'] = '/storage/' . $newPath;
+                }
+            }
+        }
+
+        if ($request->has('new_customers')) {
+            foreach ($request->new_customers as $new) {
+                $path = null;
+                if (isset($new['banner']) && $new['banner'] instanceof \Illuminate\Http\UploadedFile) {
+                    $path = '/storage/' . $new['banner']->store('uploads/events', 'public');
+                }
+
+                $events[] = [
+                    'name' => $new['name'] ?? '',
+                    'href' => $new['href'] ?? '',
+                    'banner' => $path,
+                ];
+            }
+        }
+
+        $system->promo_event = json_encode(array_values($events));
+        $system->save();
+
+        return redirect()->back()->with('success', 'Data sosial media berhasil diperbarui.');
+    }
+
 
     public function users(UserAction $user_action)
     {
@@ -144,8 +382,6 @@ class AdminController extends Controller
 
         foreach ($datas as $key => $item) {
             $qty = 0;
-
-            // Cek apakah produk punya variant
             if (count($item['product_variants']) > 0) {
                 foreach ($item['product_variants'] as $variant) {
                     foreach ($order_item_action->getByVariant($variant['id']) as $order) {
