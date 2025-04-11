@@ -31,6 +31,15 @@ Route::middleware(['auth', 'admin'])->group(function () {
            Route::get('catalogue/delete/{id}', [AdminController::class, 'deleteCatalogue'])->name('data.katalog.hapus');
         });
 
+        Route::prefix('category')->group(function (){
+           Route::get('category', [AdminController::class, 'categories'])->name('data.kategori');
+           Route::get('category/add', [AdminController::class, 'addCategory'])->name('data.kategori.tambah');
+           Route::post('category/store', [AdminController::class, 'storeCategory'])->name('data.kategori.store');
+           Route::get('category/{id}', [AdminController::class, 'detailCategory'])->name('data.kategori.detail');
+           Route::post('category/update/{id}', [AdminController::class, 'updateCategory'])->name('data.kategori.update');
+           Route::get('category/delete/{id}', [AdminController::class, 'deleteCategory'])->name('data.kategori.hapus');
+        });
+
         Route::prefix('system')->group(function () {
             Route::get('setting', [AdminController::class, 'setting'])->name('setting');
             Route::put('setting/update', [AdminController::class, 'updateSetting'])->name('system.update');

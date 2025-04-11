@@ -17,17 +17,17 @@ class CategoryAction
 
     public function get()
     {
-        $datas = Category::get();
+        $datas = Category::with('products')->get();
         return $datas;
     }
 
     public function getById($id)
     {
-        $data = Category::find($id);
+        $data = Category::with('products')->find($id);
         return $data;
     }
 
-    public function create(Request $request)
+    public function create($request)
     {
         $data = new Category();
         $data->id = Str::uuid()->toString();
@@ -36,7 +36,7 @@ class CategoryAction
         $data->save();
     }
 
-    public function update(Request $request, $id)
+    public function update($request, $id)
     {
         $data = Category::find($id);
         $data->name = $request['name'];
@@ -46,9 +46,10 @@ class CategoryAction
 
     public function delete($id)
     {
-        $datas = Product::where('category_id', $id);
-        if (!$datas) {
-            Category::find($id)->delete();
-        }
+        Category::find($id)->delete();
+        // $datas = Product::where('category_id', $id);
+        // if (!$datas) {
+        //     Category::find($id)->delete();
+        // }
     }
 }

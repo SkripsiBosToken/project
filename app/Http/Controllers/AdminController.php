@@ -526,4 +526,41 @@ class AdminController extends Controller
         $product_action->delete($id);
         return redirect()->route('data.katalog');
     }
+
+    public function categories(CategoryAction $category_action, ProductAction $product_action){
+        $datas = $category_action->get();
+        return view('admin.category.category', compact('datas'));
+    }
+
+    public function detailCategory($id, CategoryAction $category_action){
+        $data = $category_action->getById($id);
+        return view('admin.category.detail', compact('data'));
+    }
+
+    public function updateCategory(Request $request, $id, CategoryAction $category_action){
+        $data = [
+            'name' => $request['name'],
+            'description' => $request['description']
+        ];
+        $category_action->update($data, $id);
+        return redirect()->route('data.kategori');
+    }
+
+    public function addCategory(){
+        return view('admin.category.add');
+    }
+
+    public function storeCategory(Request $request, CategoryAction $category_action){
+        $data = [
+            'name' => $request['name'],
+            'description' => $request['description']
+        ];
+        $category_action->create($data);
+        return redirect()->route('data.kategori');
+    }
+
+    public function deleteCategory($id, CategoryAction $category_action){
+        $category_action->delete($id);
+        return redirect()->route('data.kategori');
+    }
 }

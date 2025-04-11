@@ -19,10 +19,10 @@ class Product extends Model
     ];
 
     public function category() : HasOne {
-        return $this->hasOne(Category::class, 'id', 'category_id');
+        return $this->hasOne(Category::class, 'id', 'category_id')->withTrashed();
     }
 
     public function product_variants() : HasMany {
-        return $this->hasMany(Product_Variant::class, 'product_id', 'id');
+        return $this->hasMany(Product_Variant::class, 'product_id', 'id')->withTrashed();
     }
 }

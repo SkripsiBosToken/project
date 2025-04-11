@@ -21,6 +21,14 @@
             <li>
                 <a href="{{ route ('data.katalog.tambah') }}"> <i class="menu-icon ti-plus"></i>Tambah Produk </a>
             </li>
+            
+            <h3 class="menu-title">Kategori</h3>
+            <li>
+                <a href="{{ route ('data.kategori') }}"> <i class="menu-icon ti-view-grid"></i>Daftar Kategory </a>
+            </li>
+            <li>
+                <a href="{{ route ('data.kategori.tambah') }}"> <i class="menu-icon ti-plus"></i>Tambah Kategory </a>
+            </li>
 
             <h3 class="menu-title">Pesanan</h3>
             <li>
