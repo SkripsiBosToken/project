@@ -17,9 +17,32 @@ use PhpParser\Node\Stmt\Return_;
 
 class AdminController extends Controller
 {
-    public function dashboard()
+    public function dashboard(OrderAction $order_action, UserAction $user_action, ProductAction $product_action)
     {
-        return view('admin.dashboard');
+        $product = $product_action->get()->count();
+        $user = $user_action->get()->count();
+        $orders = $order_action->get();
+
+        $progressOrders = $orders->whereIn('status', ['Menunggu Konfirmasi', 'Diproses', 'Dikirim'])->count();
+        $successfulOrders = $orders->where('status', 'Berhasil');
+        $successOrders = $successfulOrders->count();
+        $daily = $successfulOrders->filter(function ($order) {
+            return $order->created_at >= now()->startOfDay() && $order->created_at <= now()->endOfDay();
+        })->count();
+
+        $weekly = $successfulOrders->filter(function ($order) {
+            return $order->created_at >= now()->startOfWeek() && $order->created_at <= now()->endOfWeek();
+        })->count();
+
+        $monthly = $successfulOrders->filter(function ($order) {
+            return $order->created_at >= now()->startOfMonth() && $order->created_at <= now()->endOfMonth();
+        })->count();
+
+        $yearly = $successfulOrders->filter(function ($order) {
+            return $order->created_at >= now()->startOfYear() && $order->created_at <= now()->endOfYear();
+        })->count();
+
+        return view('admin.dashboard', compact('daily', 'weekly', 'monthly', 'yearly', 'user', 'progressOrders', 'successOrders', 'product'));
     }
 
     public function users(UserAction $user_action)
@@ -115,9 +138,25 @@ class AdminController extends Controller
         return $pdf->download('Laporan_Harian_' . $start_date . '-' . $end_date . '.pdf');
     }
 
-    public function catalogues(ProductAction $product_action)
+    public function catalogues(ProductAction $product_action, Order_ItemAction $order_item_action)
     {
         $datas = $product_action->get();
+
+        foreach ($datas as $key => $item) {
+            $qty = 0;
+
+            // Cek apakah produk punya variant
+            if (count($item['product_variants']) > 0) {
+                foreach ($item['product_variants'] as $variant) {
+                    foreach ($order_item_action->getByVariant($variant['id']) as $order) {
+                        $qty += $order['quantity'];
+                    }
+                }
+            }
+
+            $datas[$key]['qty'] = $qty;
+        }
+
         return view('admin.catalogue.catalogue', compact('datas'));
     }
 
@@ -134,7 +173,8 @@ class AdminController extends Controller
         return view('admin.catalogue.detail', compact('data', 'categories'));
     }
 
-    public function storeCatalogue(Request $request, ProductAction $product_action, Product_VariantAction $product_variant_action){
+    public function storeCatalogue(Request $request, ProductAction $product_action, Product_VariantAction $product_variant_action)
+    {
         $data = [
             'name' => $request->input('name'),
             'category_id' => $request->input('category_id')
@@ -245,7 +285,8 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Data produk berhasil diperbarui.');
     }
 
-    public function deleteCatalogue($id, ProductAction $product_action){
+    public function deleteCatalogue($id, ProductAction $product_action)
+    {
         $product_action->delete($id);
         return redirect()->route('data.katalog');
     }

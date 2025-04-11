@@ -15,7 +15,7 @@
             <li class="active">
                 <a href="{{ route ('dashboard') }}"> <i class="menu-icon fa fa-dashboard"></i>Dashboard </a>
             </li>
-            <h3 class="menu-title">Produk & Katalog</h3><!-- /.menu-title -->
+            <h3 class="menu-title">Produk & Katalog</h3>
             <li>
                 <a href="{{ route ('data.katalog') }}"> <i class="menu-icon ti-email"></i>Daftar Produk </a>
             </li>

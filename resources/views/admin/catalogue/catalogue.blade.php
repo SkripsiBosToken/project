@@ -36,6 +36,7 @@
                                         <tr>
                                             <th>Name</th>
                                             <th>Category</th>
+                                            <th>Pembelian</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -44,6 +45,7 @@
                                             <tr>
                                                 <td>{{ $item['name'] }}</td>
                                                 <td>{{ $item['category']['name'] }}</td>
+                                                <td>{{ $item['qty'] }}</td>
                                                 <td class="flex flex-row gap-x-2">
                                                     <a href="{{ route('data.katalog.detail', ['id' => $item['id']]) }}">
                                                         <button class="btn btn-primary mt-2">
