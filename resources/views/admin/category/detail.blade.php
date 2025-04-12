@@ -1,26 +1,6 @@
 <x-layout.admin-v2>
     <div>
-        <div class="breadcrumbs">
-            <div class="col-sm-4">
-                <div class="page-header float-left">
-                    <div class="page-title">
-                        <h1>Dashboard</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-8">
-                <div class="page-header float-right">
-                    <div class="page-title">
-                        <ol class="breadcrumb text-right">
-                            <li><a href="#">Dashboard</a></li>
-                            <li><a href="#">Table</a></li>
-                            <li class="active">Data table</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="content my-3">
+       <div class="content my-3">
             <div class="animated fadeIn">
                 <div class="row">
                     <div class="col-lg-6">
@@ -47,7 +27,7 @@
                                     </div>
                                 </div>
                             </div>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        <button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o mr-1"></i> Simpan</button>
                     </x-form.custom>
                     </div>
                     <div class="col-lg-6">
@@ -70,7 +50,7 @@
                                                 <td class="flex flex-row gap-x-2">
                                                     <a href="{{ route('data.katalog.detail', ['id' => $item['id']]) }}">
                                                         <button class="btn btn-primary mt-2">
-                                                            Detail
+                                                            <i class="fa fa-eye mr-1"></i> Detail
                                                         </button></a>
                                                 </td>
 

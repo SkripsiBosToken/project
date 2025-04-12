@@ -3,7 +3,7 @@
         @csrf
         @method('PUT')
 
-        <div class="content mt-3">
+        <div class="content my-3">
             <div class="row">
                 <div class="col-lg-6">
                     <div class="card">
@@ -47,9 +47,9 @@
                                     <input type="text" id="search-office-address" class="form-control"
                                         placeholder="Cari lokasi..." />
                                     <button type="button" class="btn btn-info"
-                                        onclick="geocodeOfficeAddress()">Cari</button>
+                                        onclick="geocodeOfficeAddress()"><i class="fa fa-search mr-1" aria-hidden="true"></i> Cari</button>
                                     <button type="button" class="btn btn-secondary"
-                                        onclick="resetToOriginal()">Reset</button>
+                                        onclick="resetToOriginal()"><i class="fa fa-undo mr-1" aria-hidden="true"></i> Reset</button>
                                 </div>
 
                             </div>

@@ -1,27 +1,5 @@
 <x-layout.admin-v2>
-    <div>
-        <div class="breadcrumbs">
-            <div class="col-sm-4">
-                <div class="page-header float-left">
-                    <div class="page-title">
-                        <h1>Dashboard</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-8">
-                <div class="page-header float-right">
-                    <div class="page-title">
-                        <ol class="breadcrumb text-right">
-                            <li><a href="#">Dashboard</a></li>
-                            <li><a href="#">Table</a></li>
-                            <li class="active">Data table</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="content mt-3">
+    <div> <div class="content my-3">
             <div class="animated fadeIn">
                 <div class="row">
                     <div class="col-md-12">
@@ -43,7 +21,7 @@
                                                     <input type="date" class="form-control" name="end_date"
                                                         aria-required="true" aria-invalid="false" required>
                                                 </div>
-                                                <button type="submit" class="btn btn-primary mt-2">Download
+                                                <button type="submit" class="btn btn-primary mt-2"><i class="fa fa-print mr-1"></i> Download
                                                     Laporan</button>
                                             </div>
                                         </x-form.custom>
@@ -86,12 +64,12 @@
                                                 <td class="flex flex-row gap-x-2">
                                                     <a href="{{ route('detail.pesanan', ['id' => $order['id']]) }}">
                                                         <button class="btn btn-primary mt-2">
-                                                            Detail
+                                                            <i class="fa fa-eye mr-1"></i> Detail
                                                         </button></a>
                                                     @if ($order['status'] !== 'Belum Dibayar' && $order['status'] !== 'Gagal')
                                                         <a href="{{ route('nota.pesanan', ['id' => $order['id']]) }}">
                                                             <button class="btn btn-info mt-2">
-                                                                Cetak Nota
+                                                                <i class="fa fa-print mr-1"></i> Cetak Nota
                                                             </button></a>
                                                     @endif
                                                 </td>

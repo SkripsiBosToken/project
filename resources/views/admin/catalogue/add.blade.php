@@ -25,9 +25,9 @@
                         </div>
                     </div>
 
-                    <button type="button" class="btn btn-success" onclick="addVariantCard()">Tambah Variant</button>
+                    <button type="button" class="btn btn-success" onclick="addVariantCard()"><i class="fa fa-plus mr-1"></i> Tambah Variant</button>
                     <input type="hidden" name="deletedVariantIds" id="deleted-variant-ids">
-                    <button type="submit" class="btn btn-primary">Simpan Semua</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o mr-1"></i> Simpan Semua</button>
                 </div>
                 <div class="col-lg-6" id="variant-container">
 
@@ -46,7 +46,7 @@
 
                                 <button type="button" class="btn btn-sm btn-primary"
                                     onclick="document.getElementById('file-input-__INDEX__').click()">
-                                    Tambah Gambar
+                                    <i class="fa fa-plus mr-1"></i> Tambah Gambar
                                 </button>
                                 <small class="text-muted">Pilih beberapa gambar sekaligus menggunakan Ctrl /
                                     Shift</small>
@@ -73,7 +73,7 @@
                             </div>
 
                             <button type="button" class="btn btn-danger btn-sm mt-2"
-                                onclick="deleteVariantCard(this)">Hapus Variant</button>
+                                onclick="deleteVariantCard(this)"><i class="fa fa-trash-o mr-1"></i> Hapus Variant</button>
                         </div>
                     </div>
                 </template>
@@ -83,7 +83,7 @@
 </x-layout.admin-v2>
 
 <script>
-    let variantCount = 0; // ✅ Tambahkan ini untuk menghitung index variant baru
+    let variantCount = 0; 
     let deletedIds = [];
     let deletedPhotos = {};
 

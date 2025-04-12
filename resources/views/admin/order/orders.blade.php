@@ -1,26 +1,5 @@
 <x-layout.admin-v2>
     <div>
-        <div class="breadcrumbs">
-            <div class="col-sm-4">
-                <div class="page-header float-left">
-                    <div class="page-title">
-                        <h1>Dashboard</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-8">
-                <div class="page-header float-right">
-                    <div class="page-title">
-                        <ol class="breadcrumb text-right">
-                            <li><a href="#">Dashboard</a></li>
-                            <li><a href="#">Table</a></li>
-                            <li class="active">Data table</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="content mt-3">
             <div class="animated fadeIn">
                 <div class="row">
@@ -75,14 +54,11 @@
                                                 </td>
                                                 <td>{{ $order['status'] }}</td>
                                                 <td>{{ 'Rp ' . number_format($order['total_price'], 0, ',', '.') }}</td>
-                                                {{-- <td id="created-at-{{ $order['id'] }}">
-                                                    {{ \Carbon\Carbon::parse($order['created_at'])->toIso8601String() }}
-                                                </td> --}}
                                                 <td id="created-at-{{ $order['id'] }}">{{ \Carbon\Carbon::parse($order['created_at'])->translatedFormat('d F Y, H:i:s') }}</td>
                                                 <td class="flex flex-row gap-x-2">
                                                     <a href="{{ route('detail.pesanan', ['id' => $order['id']]) }}">
                                                         <button class="btn btn-primary mt-2">
-                                                            Detail
+                                                            <i class="fa fa-eye mr-1"></i> Detail
                                                         </button></a>
                                                     <div class="user-area dropdown float-right">
                                                         <button class="btn btn-warning mt-2" href="#"
@@ -107,7 +83,7 @@
                                                     @if ($order['status'] !== 'Belum Dibayar' && $order['status'] !== 'Gagal')
                                                         <a href="{{ route('nota.pesanan', ['id' => $order['id']]) }}"><button
                                                                 class="btn btn-info mt-2">
-                                                                Cetak Nota
+                                                                <i class="fa fa-print mr-1"></i> Cetak Nota
                                                             </button></a>
                                                     @endif
                                                 </td>

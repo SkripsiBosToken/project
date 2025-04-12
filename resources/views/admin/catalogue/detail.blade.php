@@ -5,7 +5,6 @@
 
         <div class="content mt-3">
             <div class="row">
-                <!-- Kolom Produk -->
                 <div class="col-lg-6">
                     <div class="card">
                         <div class="card-header"><strong class="card-title">Data Produk</strong></div>
@@ -30,13 +29,11 @@
                         </div>
                     </div>
 
-                    <!-- Tombol tambah variant -->
-                    <button type="button" class="btn btn-success" onclick="addVariantCard()">Tambah Variant</button>
+                    <button type="button" class="btn btn-success" onclick="addVariantCard()"><i class="fa fa-plus mr-1"></i> Tambah Variant</button>
                     <input type="hidden" name="deletedVariantIds" id="deleted-variant-ids">
-                    <button type="submit" class="btn btn-primary">Simpan Semua</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o mr-1"></i> Simpan Semua</button>
                 </div>
 
-                <!-- Kolom Variant -->
                 <div class="col-lg-6" id="variant-container">
                     @foreach ($data['product_variants'] as $key => $variant)
                         <div class="card mb-4 variant-card">
@@ -67,17 +64,15 @@
                                     <input type="hidden" name="variants[{{ $key }}][deletedPhotos]"
                                         id="deleted-photos-{{ $key }}">
 
-                                    {{-- Input file untuk upload --}}
                                     <input type="file" name="variants[{{ $key }}][photos][]"
                                         id="file-input-{{ $key }}" class="form-control d-none"
                                         accept="image/*" onchange="previewImage(event, {{ $key }})" multiple>
 
                                     <input type="hidden" name="test_photos_upload_check" value="1">
 
-                                    {{-- Tombol trigger upload --}}
                                     <button type="button" class="btn btn-sm btn-primary"
                                         onclick="document.getElementById('file-input-{{ $key }}').click()">
-                                        Tambah Gambar
+                                        <i class="fa fa-plus mr-1"></i> Tambah Gambar
                                     </button>
                                     <small class="text-muted">Pilih beberapa gambar sekaligus menggunakan Ctrl /
                                         Shift</small>
@@ -109,13 +104,12 @@
                                 </div>
 
                                 <button type="button" class="btn btn-danger btn-sm mt-2"
-                                    onclick="deleteVariantCard(this, '{{ $variant['id'] }}')">Hapus Variant</button>
+                                    onclick="deleteVariantCard(this, '{{ $variant['id'] }}')"><i class="fa fa-trash-o mr-1"></i> Hapus Variant</button>
                             </div>
                         </div>
                     @endforeach
                 </div>
 
-                <!-- Template -->
                 <template id="variant-template">
                     <div class="card mb-4 variant-card">
                         <div class="card-header"><strong class="card-title">Variant Baru</strong></div>
@@ -130,7 +124,7 @@
 
                                 <button type="button" class="btn btn-sm btn-primary"
                                     onclick="document.getElementById('file-input-__INDEX__').click()">
-                                    Tambah Gambar
+                                    <i class="fa fa-plus mr-1"></i> Tambah Gambar
                                 </button>
                                 <small class="text-muted">Pilih beberapa gambar sekaligus menggunakan Ctrl /
                                     Shift</small>
@@ -157,7 +151,7 @@
                             </div>
 
                             <button type="button" class="btn btn-danger btn-sm mt-2"
-                                onclick="deleteVariantCard(this)">Hapus Variant</button>
+                                onclick="deleteVariantCard(this)"><i class="fa fa-trash-o mr-1"></i> Hapus Variant</button>
                         </div>
                     </div>
                 </template>
@@ -221,7 +215,6 @@
             reader.readAsDataURL(file);
         });
 
-        // reset file input agar onchange bisa bekerja lagi
         event.target.value = "";
     }
 

@@ -1,26 +1,5 @@
 <x-layout.admin-v2>
     <div>
-        <div class="breadcrumbs">
-            <div class="col-sm-4">
-                <div class="page-header float-left">
-                    <div class="page-title">
-                        <h1>Dashboard</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-8">
-                <div class="page-header float-right">
-                    <div class="page-title">
-                        <ol class="breadcrumb text-right">
-                            <li><a href="#">Dashboard</a></li>
-                            <li><a href="#">Table</a></li>
-                            <li class="active">Data table</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="content mt-3">
             <div class="animated fadeIn">
                 <div class="row">
@@ -48,11 +27,11 @@
                                                     <a
                                                         href="{{ route('data.kategori.detail', ['id' => $item['id']]) }}">
                                                         <button class="btn btn-primary mt-2">
-                                                            Detail
+                                                            <i class="fa fa-eye mr-1"></i> Detail
                                                         </button></a>
                                                     <a href="{{ route('data.kategori.hapus', ['id' => $item['id']]) }}">
                                                         <button class="btn btn-danger mt-2">
-                                                            Delete
+                                                            <i class="fa fa-trash mr-1"></i> Delete
                                                         </button></a>
                                                 </td>
                                             </tr>
