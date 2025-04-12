@@ -33,6 +33,6 @@
         <p class="text-xs md:text-sm font-bold text-primary">
             {{ $formattedPrice }}
         </p>
-        <x-button.custom class="p-0.5 text-sm md:text-sm" href="{{ $href }}">X</x-button.custom>
+        <x-button.custom class="p-0.5 text-sm md:text-sm" href="{{ $href }}"><i class="fa-solid fa-cart-shopping"></i></x-button.custom>
     </div>
 </div>

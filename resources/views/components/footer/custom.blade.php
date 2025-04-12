@@ -15,28 +15,20 @@
 
         <div>
             <h3 class="font-semibold text-primary">Contact Us</h3>
-            <p class="mt-2 text-sm">Our Address</p>
             <div class="flex items-center space-x-3 mt-2">
-                <a href="#" class="text-primary hover:text-white">
-                    <i class="fab fa-instagram"></i>
-                </a>
-                <a href="#" class="text-primary hover:text-white">
-                    <i class="fab fa-facebook"></i>
-                </a>
-                <a href="#" class="text-primary hover:text-white">
-                    <i class="fab fa-tiktok"></i>
-                </a>
-                <a href="#" class="text-primary hover:text-white">
-                    <i class="fas fa-envelope"></i>
-                </a>
+                @foreach (json_decode($setting['social_media'], true) as $item)
+                    <a href="{{$item['href']}}" class="text-primary hover:text-white">
+                        <img src="{{ $item['logo'] }}"
+                            class="w-4 md:w-8 h-4 md:h-8 object-contain">
+                    </a>
+                @endforeach
             </div>
         </div>
 
         <div>
             <h3 class="font-semibold text-primary">Getting Touch</h3>
-            <p class="mt-2 text-sm">support@staycation.id</p>
-            <p class="mt-1 text-sm">0321-862319</p>
-            <p class="mt-1 text-sm">Malang, Indonesia</p>
+            <p class="mt-1 text-sm">{{ $setting['phone_number'] }}</p>
+            <p class="mt-1 text-sm">{{ json_decode($setting['office_address'], true)['address'] }}</p>
         </div>
     </div>
 </div>

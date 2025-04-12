@@ -81,7 +81,7 @@
                             <span
                                 x-text="new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(getSubtotal(items, shippingCost))"></span>
                         </div>
-                        <button type="submit" class="w-full mt-4 bg-primary text-white py-2 rounded-lg">Check
+                        <button type="submit" class="w-full mt-4 bg-primary text-white py-2 rounded-lg"><i class="fa-solid fa-shield mr-2"></i>Check
                             Out</button>
                     </div>
                 </x-form.custom>

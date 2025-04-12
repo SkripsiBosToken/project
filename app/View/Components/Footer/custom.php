@@ -3,17 +3,18 @@
 namespace App\View\Components\Footer;
 
 use Closure;
+use App\Http\Controllers\GuestController;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
 class custom extends Component
 {
-    /**
-     * Create a new component instance.
-     */
-    public function __construct()
+    public $setting;
+
+    public function __construct(GuestController $guestController)
     {
         //
+        $this->setting = $guestController->setting();
     }
 
     /**
@@ -21,6 +22,6 @@ class custom extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.footer.custom');
+        return view('components.footer.custom', ['setting' => $this->setting]);
     }
 }

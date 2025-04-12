@@ -10,26 +10,26 @@
                 </p>
                 <x-button.custom
                     class="px-4 md:px-6 py-2 md:py-3 font-medium md:font-semibold text-sm md:text-lg rounded-md hover:bg-opacity-80"
-                    href="{{ route('catalogue') }}">Show Me Product</x-button.custom>
+                    href="{{ route('catalogue') }}">Show Me Product <i class="fa-solid fa-arrow-right ml-2"></i></x-button.custom>
 
             </div>
-            <div class="flex py-4 md:pt-8 space-x-6 mt-6">
+            {{-- <div class="flex py-4 md:pt-8 space-x-6 mt-6">
                 <div class="text-center">
-                    <i class="fas fa-suitcase text-blue-500 text-2xl"></i>
+                    <i class="fas fa-suitcase text-2xl"></i>
                     <p class="text-primary font-bold">80k+</p>
-                    <p class="text-primary-gray font-medium">Traveler</p>
+                    <p class="text-primary-gray font-medium">Order</p>
                 </div>
                 <div class="text-center">
-                    <i class="fas fa-camera text-blue-500 text-2xl"></i>
+                    <i class="fas fa-camera text-2xl"></i>
                     <p class="text-primary font-bold">45k+</p>
-                    <p class="text-primary-gray font-medium">Treasure</p>
+                    <p class="text-primary-gray font-medium">User</p>
                 </div>
                 <div class="text-center">
-                    <i class="fas fa-map-marker-alt text-blue-500 text-2xl"></i>
+                    <i class="fas fa-map-marker-alt text-2xl"></i>
                     <p class="text-primary font-bold">12k+</p>
                     <p class="text-primary-gray font-medium">CityHub</p>
                 </div>
-            </div>
+            </div> --}}
         </div>
 
         <div class="md:w-1/2 flex items-center md:justify-end hidden md:flex">

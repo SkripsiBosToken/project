@@ -13,6 +13,7 @@
     <meta name="keywords" content="Catering Malang, pesan catering Malang, catering murah Malang">
     <meta name="robots" content="index, follow">
 
+    <script src="https://kit.fontawesome.com/a47e0565cc.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -25,11 +26,10 @@
     </div>
 
     <x-button.custom
-        class="px-4 py-4 fixed bottom-8 right-8 bg-primary text-white p-4 rounded-full shadow-lg hover:bg-white hover:text-primary transition-all"
+        class="w-16 h-16 fixed bottom-8 right-8 bg-primary text-white rounded-full shadow-lg flex items-center justify-center text-2xl hover:bg-white hover:text-primary transition-all"
         href="https://wa.me/{{ preg_replace('/^0/', '62', $setting->phone_number) }}" target="_blank">
-        💬
+        <i class="fa-brands fa-whatsapp"></i>
     </x-button.custom>
-
 
     <x-footer.custom />
 </body>

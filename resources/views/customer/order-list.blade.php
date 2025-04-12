@@ -66,6 +66,24 @@
 
                     <div class="flex-1 text-center md:text-left">
                         <div class="flex items-center space-x-2">
+                            <template x-if="item.status === 'Belum Dibayar'">
+                                <i class="fa-solid fa-money-check-dollar"></i>
+                            </template>
+                            <template x-if="item.status === 'Berhasil'">
+                                <i class="fa-solid fa-check"></i>
+                            </template>
+                            <template x-if="item.status === 'Gagal'">
+                                <i class="fa-solid fa-xmark"></i>
+                            </template>
+                            <template x-if="item.status === 'Menunggu Konfirmasi'">
+                                <i class="fa-solid fa-spinner"></i>
+                            </template>
+                            <template x-if="item.status === 'Diproses'">
+                                <i class="fa-solid fa-hourglass-start"></i>
+                            </template>
+                            <template x-if="item.status === 'Dikirim'">
+                                <i class="fa-solid fa-car-side"></i>
+                            </template>
                             <span class="text-xs md:text-sm font-normal md:font-semibold" x-text="item.status"></span>
                             <p class="text-sm text-primary-gray"
                                 x-text="'Waktu Pemesanan : ' + formatDateTime(item.created_at)"></p>
@@ -98,7 +116,7 @@
                                         Tulis Review
                                     </button>
                                 </template>
-                        
+
                                 <template x-if="selectedReviewOrderId === item.id">
                                     <form :action="'/submit-review'" method="POST" class="mt-2 border p-2 rounded-md">
                                         @csrf
@@ -108,27 +126,27 @@
                                         <div class="flex gap-1 mb-2">
                                             <template x-for="star in 5">
                                                 <span @click="rating = star" class="cursor-pointer text-2xl"
-                                                      :class="rating >= star ? 'text-yellow-400' : 'text-gray-300'">
-                                                    ★
+                                                    :class="rating >= star ? 'text-yellow-400' : 'text-gray-300'">
+                                                    <i class="fa-solid fa-star"></i>
                                                 </span>
                                             </template>
                                         </div>
-                                
+
                                         <textarea name="message" x-model="reviewContent" rows="3" placeholder="Tulis ulasan..."
                                             class="w-full border p-2 rounded mb-2"></textarea>
-                                
+
                                         <div class="flex justify-end gap-2">
                                             <button @click.prevent="selectedReviewOrderId = null"
                                                 class="text-sm px-3 py-1 border border-gray-400 rounded-md">Batal</button>
                                             <button type="submit"
-                                                class="text-sm px-3 py-1 bg-primary text-white rounded-md">Kirim</button>
+                                                class="text-sm px-3 py-1 bg-primary text-white rounded-md">Kirim <i class="fa-solid fa-paper-plane ml-1"></i></button>
                                         </div>
                                     </form>
                                 </template>
-                                
+
                             </div>
                         </template>
-                        
+
                     </div>
 
                     <div class="text-center md:ml-auto mr-auto">

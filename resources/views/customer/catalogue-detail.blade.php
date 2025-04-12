@@ -87,7 +87,7 @@
                             <input type="number" name="qty" :value="quantity" class="hidden">
                             <button type="submit"
                                 class="w-full px-4 py-2 border rounded-md text-primary text-center text-md">
-                                Tambah Keranjang
+                                <i class="fa-solid fa-plus mr-2"></i> Tambah Keranjang
                             </button>
                         </x-form.custom>
 
