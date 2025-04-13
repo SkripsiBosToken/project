@@ -86,6 +86,38 @@ class AdminController extends Controller
 
     public function updateSetting(Request $request, SystemAction $system_action)
     {
+        // $oldData = $system_action->get();
+
+        // $office_address = [
+        //     'address' => $request->input('address'),
+        //     'postal_code' => $request->input('postal_code'),
+        //     'latitude' => $request->input('latitude'),
+        //     'longitude' => $request->input('longitude'),
+        // ];
+
+        // $data = [
+        //     'name' => $request->input('name'),
+        //     'phone_number' => $request->input('phone_number'),
+        //     'visi' => $request->input('visi'),
+        //     'misi' => $request->input('misi'),
+        //     'office_address' => json_encode($office_address)
+        // ];
+
+        // if ($request->hasFile('logo')) {
+        //     if ($oldData && $oldData->logo) {
+        //         $oldLogoPath = str_replace('/storage/', '', $oldData->logo);
+        //         if (\Storage::disk('public')->exists($oldLogoPath)) {
+        //             \Storage::disk('public')->delete($oldLogoPath);
+        //         }
+        //     }
+
+        //     $path = $request->file('logo')->store('uploads/logo', 'public');
+        //     $data['logo'] = '/storage/' . $path;
+        // }
+
+        // $system_action->update($data);
+
+        // return redirect()->back()->with('success', 'Pengaturan berhasil diperbarui.');
         $oldData = $system_action->get();
 
         $office_address = [
@@ -100,7 +132,8 @@ class AdminController extends Controller
             'phone_number' => $request->input('phone_number'),
             'visi' => $request->input('visi'),
             'misi' => $request->input('misi'),
-            'office_address' => json_encode($office_address)
+            'office_address' => json_encode($office_address),
+            'our_coverage' => json_encode(json_decode($request->input('our_coverage'), true)), // tambahan
         ];
 
         if ($request->hasFile('logo')) {
@@ -527,17 +560,20 @@ class AdminController extends Controller
         return redirect()->route('data.katalog');
     }
 
-    public function categories(CategoryAction $category_action, ProductAction $product_action){
+    public function categories(CategoryAction $category_action, ProductAction $product_action)
+    {
         $datas = $category_action->get();
         return view('admin.category.category', compact('datas'));
     }
 
-    public function detailCategory($id, CategoryAction $category_action){
+    public function detailCategory($id, CategoryAction $category_action)
+    {
         $data = $category_action->getById($id);
         return view('admin.category.detail', compact('data'));
     }
 
-    public function updateCategory(Request $request, $id, CategoryAction $category_action){
+    public function updateCategory(Request $request, $id, CategoryAction $category_action)
+    {
         $data = [
             'name' => $request['name'],
             'description' => $request['description']
@@ -546,11 +582,13 @@ class AdminController extends Controller
         return redirect()->route('data.kategori');
     }
 
-    public function addCategory(){
+    public function addCategory()
+    {
         return view('admin.category.add');
     }
 
-    public function storeCategory(Request $request, CategoryAction $category_action){
+    public function storeCategory(Request $request, CategoryAction $category_action)
+    {
         $data = [
             'name' => $request['name'],
             'description' => $request['description']
@@ -559,12 +597,14 @@ class AdminController extends Controller
         return redirect()->route('data.kategori');
     }
 
-    public function deleteCategory($id, CategoryAction $category_action){
+    public function deleteCategory($id, CategoryAction $category_action)
+    {
         $category_action->delete($id);
         return redirect()->route('data.kategori');
     }
 
-    public function rates(RateAction $rate_action){
+    public function rates(RateAction $rate_action)
+    {
         $datas = $rate_action->get();
         return view('admin.user.rate', compact('datas'));
     }
