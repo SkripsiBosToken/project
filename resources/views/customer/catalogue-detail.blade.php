@@ -8,7 +8,6 @@
                 this.selectedVariant = variant;
                 this.quantity = 1;
                 this.selectedImageIndex = 0;
-                console.log('Selected Variant:', this.selectedVariant);
             },
             updateImageIndex(index) {
                 this.selectedImageIndex = index;
@@ -16,7 +15,7 @@
             get subtotal() {
                 return this.quantity * this.selectedVariant.price;
             }
-        }" x-init="console.log('Initial Selected Variant:', selectedVariant)">
+        }">
 
             <div class="flex justify-center items-start col-span-5">
                 <div class="flex flex-col">

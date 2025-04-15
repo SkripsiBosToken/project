@@ -197,7 +197,6 @@
                                     lng: this.longitude
                                 });
 
-                                console.log("Alamat ditemukan:", data.display_name);
                             } else {
                                 alert("Alamat tidak ditemukan dari koordinat.");
                             }

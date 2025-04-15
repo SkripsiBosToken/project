@@ -30,7 +30,6 @@
 
         if (coverageArea && coverageArea.length > 0) {
             coverageArea.forEach(function(area) {
-            console.log("Drawing circle at:", area.lat, area.lng, "Radius:", area.radius);
             if (area.lat && area.lng) {
                 L.circle([area.lat, area.lng], {
                     color: "#588157",

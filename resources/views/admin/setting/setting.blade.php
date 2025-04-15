@@ -95,6 +95,30 @@ let coverageIndex = 0;
 let coverageMaps = {};
 let coverageMarkers = {};
 
+function geocodeOfficeAddress() {
+    const query = document.getElementById("search-office-address").value;
+    if (!query) return;
+
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.length > 0) {
+                const { lat, lon } = data[0];
+                document.getElementById("latitude").value = lat;
+                document.getElementById("longitude").value = lon;
+                officeMap.setView([lat, lon], 15);
+                officeMarker.setLatLng([lat, lon]);
+            } else {
+                alert("Lokasi tidak ditemukan");
+            }
+        })
+        .catch(error => {
+            console.error("Geocoding error:", error);
+            alert("Terjadi kesalahan saat mencari lokasi");
+        });
+}
+
+
 function previewLogo(event) {
     const input = event.target;
     const preview = document.getElementById('logo-preview');
