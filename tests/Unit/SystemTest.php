@@ -68,4 +68,12 @@ class SystemTest extends TestCase
         // Membandingkan Hasil 
         $this->assertEquals($result, $action);
     }
+
+    /** @test */
+    public function redirect_contact_with_system_phone_number(){
+        $system = System::first();
+        $result = 'https://wa.me/' . $system['phone_number'];
+
+        $this->assertEquals($result, 'https://wa.me/08123445678');
+    }
 }

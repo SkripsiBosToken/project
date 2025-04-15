@@ -2,7 +2,10 @@
 
 namespace Tests\Unit;
 
+use App\Actions\OrderAction;
 use App\Models\Product;
+use App\Models\User;
+use App\Models\Order;
 use Tests\TestCase;
 use App\Models\Product_Variant;
 use Illuminate\Support\Facades\Http;
@@ -147,5 +150,59 @@ class OrderTest extends TestCase
         });
 
         $this->assertEquals(3, $weeklyReport->count());
+    }
+
+    /** @test */
+    public function admin_can_filter_order_by_status()
+    {
+        $order_action = new OrderAction();
+        $user = User::first();
+
+        $data = [
+            'status' => 'Diproses',
+            'total_price' => 1000,
+            'transaction_id' => 'test',
+            'shipping_address' => 'tset',
+            'user_id' => $user->id
+        ];
+
+        $order_action->create($data);
+
+        $result = Order::where('status', 'Diproses')->first();
+        $this->assertEquals($result['status'], 'Diproses');
+    }
+
+    /** @test */
+    public function can_cancel_order()
+    {
+        $data = Order::first();
+        $data->status = 'Gagal';
+        $data->save();
+
+        $result = Order::find($data['id']);
+        $this->assertEquals($result['status'], 'Gagal');
+    }
+
+    /** @test */
+    public function customer_can_view_their_orders()
+    {
+        $user = User::with('orders')->first();
+        $action = count($user->orders);
+
+        $this->assertEquals($action, !(0));
+    }
+
+    /** @test */
+    public function admin_can_view_order_history()
+    {
+        // Action
+        $data_update = Order::first();
+        $data_update->status = 'Berhasil';
+        $data_update->save();
+
+        $data_histories = Order::where('status', 'Berhasil')->get();
+
+        // Result
+        $this->assertEquals(count($data_histories), !(0));
     }
 }

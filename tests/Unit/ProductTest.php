@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use Tests\TestCase;
 use App\Models\Product;
+use App\Models\User;
 use App\Models\Category;
 use App\Models\Product_Variant;
 use Illuminate\Support\Str;
@@ -89,5 +90,42 @@ class ProductTest extends TestCase
 
         // Membandingkan Hasil 
         $this->assertEquals($result, $actionJson);
+    }
+
+    /** @test */
+    public function admin_can_create_product()
+    {
+        $admin = User::whereHas('role', function ($query) {
+            $query->where('name', 'Admin');
+        })->first();
+
+        $this->assertNotNull($admin, 'Admin user tidak ditemukan. Pastikan user dengan role Admin tersedia.');
+
+        $category = Category::first();
+        $this->assertNotNull($category, 'Category tidak ditemukan.');
+
+        $response = $this->actingAs($admin)->put(route('data.katalog.store'), [
+            'name' => 'Nasi Kuning',
+            'category_id' => $category->id,
+            'description' => 'test',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('products', ['name' => 'Nasi Kuning']);
+    }
+
+    /** @test */
+    public function can_view_top_selling_products()
+    {
+        $datas = Product_Variant::with('order_items')->get();
+        foreach ($datas as $key => $data) {
+            $qty = 0;
+            foreach ($data['order_items'] as $key => $order) {
+                $qty += $order['quantity'];
+            }
+            $datas[$key]['qty'] = $qty;
+        }
+
+        $this->assertEquals($datas[0]['qty'], 0);
     }
 }
