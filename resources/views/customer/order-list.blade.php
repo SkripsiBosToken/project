@@ -59,7 +59,11 @@
         </div>
 
         <div class="space-y-4">
-            <template x-for="item in items.filter(i => activeStatus === '' || i.status === activeStatus)">
+            <template
+                x-for="item in items
+    .filter(i => activeStatus === '' || i.status === activeStatus)
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))">
+
                 <div class="border p-4 rounded-md flex flex-col md:flex-row gap-4 items-center">
                     <img x-bind:src="JSON.parse(item.order_items[0].product_variant.photo)[0]" alt="Makanan"
                         class="w-16 h-16 rounded-md flex-shrink-0">
@@ -139,7 +143,8 @@
                                             <button @click.prevent="selectedReviewOrderId = null"
                                                 class="text-sm px-3 py-1 border border-gray-400 rounded-md">Batal</button>
                                             <button type="submit"
-                                                class="text-sm px-3 py-1 bg-primary text-white rounded-md">Kirim <i class="fa-solid fa-paper-plane ml-1"></i></button>
+                                                class="text-sm px-3 py-1 bg-primary text-white rounded-md">Kirim <i
+                                                    class="fa-solid fa-paper-plane ml-1"></i></button>
                                         </div>
                                     </form>
                                 </template>
