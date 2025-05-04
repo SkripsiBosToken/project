@@ -1,21 +1,25 @@
 <x-layout.customer>
-    {{-- <div class="my-10 md:my-14 font-poppins px-4 md:px-8" x-data="{
-        items: {{ json_encode($datas) }},
-        activeStatus: '',
-        setStatus(status) {
-            this.activeStatus = this.activeStatus === status ? '' : status;
-        }
-    }"> --}}
-
     <div class="my-10 md:my-14 font-poppins px-4 md:px-8" x-data="{
         items: {{ json_encode($datas) }},
         activeStatus: '',
         selectedReviewOrderId: null,
         reviewContent: '',
         rating: 0,
+        currentPage: 1,
+        perPage: 5,
+    
     
         setStatus(status) {
             this.activeStatus = this.activeStatus === status ? '' : status;
+        },
+    
+        paginatedItems() {
+            const filtered = this.items
+                .filter(i => this.activeStatus === '' || i.status === this.activeStatus)
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    
+            const start = (this.currentPage - 1) * this.perPage;
+            return filtered.slice(start, start + this.perPage);
         },
     
         selectReview(orderId) {
@@ -60,9 +64,10 @@
 
         <div class="space-y-4">
             <template
-                x-for="item in items
+                x-for="item in paginatedItems()
     .filter(i => activeStatus === '' || i.status === activeStatus)
-    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))">
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))"
+                :key="item.id">
 
                 <div class="border p-4 rounded-md flex flex-col md:flex-row gap-4 items-center">
                     <img x-bind:src="JSON.parse(item.order_items[0].product_variant.photo)[0]" alt="Makanan"
@@ -160,6 +165,27 @@
                     </div>
                 </div>
             </template>
+            <div class="flex justify-center gap-2 mt-6"
+                x-show="items.filter(i => activeStatus === '' || i.status === activeStatus).length > perPage">
+                <button @click="if(currentPage > 1) currentPage--" class="px-3 py-1 border rounded"
+                    :disabled="currentPage === 1">
+                    &laquo;
+                </button>
+
+                <template
+                    x-for="page in Math.ceil(items.filter(i => activeStatus === '' || i.status === activeStatus).length / perPage)">
+                    <button @click="currentPage = page" class="px-3 py-1 border rounded"
+                        :class="currentPage === page ? 'bg-primary text-white' : ''" x-text="page">
+                    </button>
+                </template>
+
+                <button @click="currentPage++" class="px-3 py-1 border rounded"
+                    :disabled="currentPage >= Math.ceil(items.filter(i => activeStatus === '' || i.status === activeStatus)
+                        .length / perPage)">
+                    &raquo;
+                </button>
+            </div>
+
         </div>
     </div>
 </x-layout.customer>
