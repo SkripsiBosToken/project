@@ -10,7 +10,7 @@
                         <div class="card-header"><strong class="card-title">Banner {{ $key + 1 }}</strong></div>
                         <div class="card-body">
                             <div class="form-group">
-                                <label>Nama Sosial Media</label>
+                                <label>Nama Banner</label>
                                 <input type="text" class="form-control" name="customers[{{ $key }}][name]"
                                     value="{{ $item['name'] }}" required>
                             </div>
@@ -52,7 +52,7 @@
             <div class="card-header"><strong class="card-title">Banner Baru</strong></div>
             <div class="card-body">
                 <div class="form-group">
-                    <label>Nama Sosial Media</label>
+                    <label>Nama Banner</label>
                     <input type="text" class="form-control" name="new_customers[__INDEX__][name]" required>
                 </div>
 
