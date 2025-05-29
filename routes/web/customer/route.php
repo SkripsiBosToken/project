@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GuestController;
 
@@ -42,7 +43,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('profile', [CustomerController::class, 'profile'])->name('profile');
     Route::post('profile', [CustomerController::class, 'updateProfile'])->name('profile.update');
 
-    Route::post('/submit-review', [CustomerController::class, 'submitReview']);
+    Route::post('submit-review', [CustomerController::class, 'submitReview']);
+    
+    Route::get('order/receipt/{id}', [AdminController::class, 'generateInvoice'])->name('getReceipt');
 
     Route::get('logout', [CustomerController::class, 'logout'])->name('logout');
 });

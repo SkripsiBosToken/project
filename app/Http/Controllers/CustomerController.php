@@ -172,7 +172,7 @@ class CustomerController extends Controller
             $checkout['bank_transfer'] = [
                 'bank' => $paymentType,
                 $paymentType . '_va' => [
-                    'va_number' => $midtrans_action->vaNumber,
+                    // 'va_number' => $midtrans_action->vaNumber,
                     'recipient_name' => 'Kusuka Catering'
                 ]
             ];

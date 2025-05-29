@@ -23,7 +23,7 @@ class MidtransAction
       $this->clientkey = env('MIDTRANS_CLIENT_KEY');
       $this->merchantId = env('MIDTRANS_ID_MERCHANT');
       $this->endpoint = env('MIDTRANS_ENDPOINT');
-      $this->vaNumber = env('MIDTRANS_VA_NUMBER');
+      // $this->vaNumber = env('MIDTRANS_VA_NUMBER');
    }
 
    public function getTransaction($transaction_id)

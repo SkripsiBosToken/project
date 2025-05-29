@@ -27,7 +27,7 @@ class OrderTest extends TestCase
 
         $this->serverKey = env('MIDTRANS_SERVER_KEY');
         $this->endpoint = env('MIDTRANS_ENDPOINT');
-        $this->vaNumber = env('MIDTRANS_VA_NUMBER');
+        // $this->vaNumber = env('MIDTRANS_VA_NUMBER');
     }
 
     /** @test */

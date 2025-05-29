@@ -23,11 +23,19 @@
                     </div>
                 </div>
 
-                <div class="mt-4">
-                    <p class="text-gray-600">Alamat Pengiriman</p>
-                    <p class="font-semibold text-gray-800">{{ $user->name }}</p>
-                    <p class="text-gray-600">{{ json_decode($order->shipping_address, true)['address'] }}</p>
-                    <p class="text-gray-600">{{ $user->phone_number }}</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="mt-4">
+                        <p class="text-gray-600">Alamat Pengiriman</p>
+                        <p class="font-semibold text-gray-800">{{ $user->name }}</p>
+                        <p class="text-gray-600">{{ json_decode($order->shipping_address, true)['address'] }}</p>
+                        <p class="text-gray-600">{{ $user->phone_number }}</p>
+                    </div>
+                    <div class="flex justify-between items-center mb-4">
+                        <p class="text-lg font-semibold text-gray-800"> </p>
+                        @if ($order->status !== 'Belum Dibayar')
+                            <a href="{{route('getReceipt' , ['id' => $order['id']])}}" type="button" class="bg-primary-light text-white px-4 py-2 rounded-md"><i class="fa fa-print mr-1"></i> Cetak Nota</a>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
