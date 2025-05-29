@@ -150,7 +150,7 @@ class DatabaseSeeder extends Seeder
             'id' => $user_id_2,
             'username' => 'user',
             'name' => 'Faiz Diandra Maulana',
-            'email' => 'user@user.com',
+            'email' => 'faizdiandra11@gmail.com',
             'password' => Hash::make('user'),
             'address' => '{"address":"Jl.Simpang Wisnuwardana 3 No 6","latitude":"-7.969791111500376","longitude":"112.67087280750276","postal_code":"65154","location_id":"67d96af02a29bc0012642a9d"}',
             'phone_number' => '081232857502',

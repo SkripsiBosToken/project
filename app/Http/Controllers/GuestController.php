@@ -9,13 +9,23 @@ use App\Actions\SystemAction;
 use App\Actions\AuthAction;
 use App\Actions\BiteshipAction;
 use App\Actions\CartAction;
+use App\Actions\MailAction;
+use App\Actions\PasswordResetAction;
 use App\Actions\RoleAction;
 use App\Actions\UserAction;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Str;
 
 class GuestController extends Controller
 {
+
+    private $appUrl;
+
+    public function __construct()
+    {
+        $this->appUrl = env('APP_URL');
+    }
+
     public function setting()
     {
         $system_action = new SystemAction();
@@ -142,12 +152,63 @@ class GuestController extends Controller
                 "birth_date" => $request['birth_date'],
                 "role_id" => $role['id']
             ];
-            
+
             $cart_action->create([
                 'user_id' => $user_action->create($data)
             ]);
             return redirect()->route('login');
         }
         return redirect()->route('register')->with('error', 'Username atau email sudah terdaftar.');
+    }
+
+    public function forgotPassword()
+    {
+        return view('customer.forgot-password');
+    }
+
+    public function sendResetPassword(Request $request, UserAction $user_action, PasswordResetAction $password_reset_action, MailAction $mail_action)
+    {
+        $user = $user_action->getByEmail($request['email']);
+        if ($user) {
+            $findExpired = $password_reset_action->getByEmail($request['email']);
+            if (!$findExpired) {
+                $request = [
+                    'email' => $request['email'],
+                    'token' => $user->id . Str::random(64),
+                ];
+                $password_reset_action->create($request);
+
+                // Send Mail
+                $content = [$this->appUrl . '/reset-password/' . $request['token']];
+                $mail_action->send($request['email'], $content, 'mail.reset-password', 'Reset Password');
+                return back()->with('error', 'Kami telah mengirimkan tautan pengaturan ulang kata sandi Anda melalui email!');
+            }
+            if ($findExpired['expired'] > time()) {
+                return back()->with('error', 'Kami telah mengirimkan tautan pengaturan ulang kata sandi Anda melalui email, pengiriman email akan dilakukan dalam 30 menit ke depan.');
+            } else {
+                return back()->with('error', 'Terjadi kesalahan saat mengirimkan tautan pengaturan ulang kata sandi.');
+            }
+        } else {
+            return redirect()->back()->with('error', 'Pengguna dengan email ini tidak ditemukan.');
+        }
+    }
+
+    public function resetPassword($token, PasswordResetAction $password_reset_action){
+        $data = $password_reset_action->getByToken($token);
+        if (!$data) {
+            return back();
+        }
+        if ($data['expired']  < time()) {
+            $password_reset_action->deleteByEmail($data['email']);
+        }
+        return view('customer.reset-password', compact('data'));
+    }
+
+    public function requestResetPassword(Request $request, $token, PasswordResetAction $password_reset_action, UserAction $user_action){
+        $data = $password_reset_action->getByToken($token);
+        $user_action->updatePassword($data['email'], $request['password']);
+        $password_reset_action->deleteByEmail($data['email']);
+        return redirect()->route('login');
+        
     }
 }

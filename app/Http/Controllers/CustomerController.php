@@ -374,4 +374,5 @@ class CustomerController extends Controller
         $rate_action->create($data);
         return redirect()->route('order-list');
     }
+
 }

@@ -16,6 +16,12 @@ Route::post('login', [GuestController::class, 'auth'])->name('login');
 Route::get('register', [GuestController::class, 'sign_up'])->name('register');
 Route::post('register', [GuestController::class, 'register'])->name('register');
 
+Route::get('forgot-password', [GuestController::class, 'forgotPassword'])->name('forgot-password');
+Route::post('forgot-password', [GuestController::class, 'sendResetPassword'])->name('forgot-password');
+
+Route::get('reset-password/{token}', [GuestController::class, 'resetPassword'])->name('reset-password');
+Route::post('reset-password/{token}', [GuestController::class, 'requestResetPassword'])->name('reset-password');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('cart', [CustomerController::class, 'cart'])->name('cart');
     Route::post('cart/add', [CustomerController::class, 'addToCart'])->name('cart.add');

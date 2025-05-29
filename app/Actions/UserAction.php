@@ -71,4 +71,10 @@ class UserAction
       $data->point = $point;
       $data->save();
    }
+
+   public function updatePassword($email, $password){
+      $data = User::where('email', $email)->first();
+      $data->password = Hash::make($password);
+      $data->save();
+   }
 }
