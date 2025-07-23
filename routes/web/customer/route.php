@@ -1,9 +1,32 @@
 <?php
 
+use Spatie\Sitemap\Sitemap;
+use Spatie\Sitemap\Tags\Url;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GuestController;
+
+Route::get('/sitemap.xml', function () {
+    $sitemap = Sitemap::create()
+        ->add(Url::create('/'))
+        ->add(Url::create('/about'))
+        ->add(Url::create('/contact-us'))
+        ->add(Url::create('/catalogue'));
+
+    foreach (\App\Models\Product::all() as $product) {
+        $sitemap->add(
+            Url::create("/catalogue-detail/{$product->id}")
+                ->setLastModificationDate(
+                    $product->updated_at instanceof \DateTimeInterface ? $product->updated_at : now()
+                )
+                ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                ->setPriority(0.8)
+        );
+    }
+    return $sitemap;
+});
+
 
 Route::get('/', [GuestController::class, 'landing'])->name('home');
 Route::get('about', [GuestController::class, 'about'])->name('about');
