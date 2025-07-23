@@ -16,7 +16,7 @@
     <meta name="description"
         content="Pesan catering di Malang dengan makanan berkualitas, fresh, dan siap diantar ke lokasi Anda. Cek menu spesial kami!">
     <meta name="keywords" content="Catering Malang, pesan catering Malang, catering murah Malang">
-    <meta name="robots" content="index, follow">
+    <meta name="author" content="Kusuka Catering">
 
     <script src="https://kit.fontawesome.com/a47e0565cc.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
