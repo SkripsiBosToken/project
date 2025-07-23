@@ -1,3 +1,7 @@
+@php
+    $setting = app(\App\Http\Controllers\GuestController::class)->setting();
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,7 +11,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
     <title>Auth</title>
-
+    <link rel="icon" type="image/png" href="{{ $setting['logo'] }}">
+    
     <script src="https://kit.fontawesome.com/a47e0565cc.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 

@@ -21,7 +21,7 @@ jobs:
 
       - uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ftp.bostoken.site
+          server: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           server-dir: /home/bostoken/public_html/
@@ -29,3 +29,4 @@ jobs:
             **/.git*
             **/.git*/**
             **/node_modules/**
+            public/assets/vendors/**

@@ -1,3 +1,7 @@
+@php
+    $setting = app(\App\Http\Controllers\GuestController::class)->setting();
+@endphp
+
 <nav class="w-full top-0 left-0 z-50 bg-transparent">
     <div class="flex justify-between h-16 items-center">
         <a href="{{ route('home') }}" class="text-primary text-xl md:text-3xl font-bold flex items-center gap-2">

@@ -1,3 +1,7 @@
+@php
+    $setting = app(\App\Http\Controllers\GuestController::class)->setting();
+@endphp
+
 <header id="header" class="header">
 
     <div class="header-menu">

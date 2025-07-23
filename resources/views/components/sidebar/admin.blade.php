@@ -1,3 +1,7 @@
+@php
+    $setting = app(\App\Http\Controllers\GuestController::class)->setting();
+@endphp
+
 <nav class="navbar navbar-expand-sm navbar-default">
 
     <div class="navbar-header">

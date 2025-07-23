@@ -1,3 +1,7 @@
+@php
+    $setting = app(\App\Http\Controllers\GuestController::class)->setting();
+@endphp
+
 <div class="bg-primary-gray_light py-8 md:py-16 px-6 md:px-48 font-poppins">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-primary-gray">
         <div>

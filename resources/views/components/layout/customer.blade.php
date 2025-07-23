@@ -1,3 +1,7 @@
+@php
+    $setting = app(\App\Http\Controllers\GuestController::class)->setting();
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,7 +11,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
     <title>Catering Malang | Pesan Makanan Lezat, Hangat & Fresh</title>
-
+    <link rel="icon" type="image/png" href="{{ $setting['logo'] }}">
+    
     <meta name="description"
         content="Pesan catering di Malang dengan makanan berkualitas, fresh, dan siap diantar ke lokasi Anda. Cek menu spesial kami!">
     <meta name="keywords" content="Catering Malang, pesan catering Malang, catering murah Malang">

@@ -1,3 +1,7 @@
+@php
+    $categories = app(\App\Http\Controllers\GuestController::class)->getCategories();
+@endphp
+
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
 <aside class="w-full md:w-1/4 rounded-lg font-poppins">
