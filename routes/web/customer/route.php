@@ -110,9 +110,17 @@ Route::middleware(['auth'])->group(function () {
     Route::post('cart/add', [CustomerController::class, 'addToCart'])->name('cart.add');
     Route::get('cart/delete/{id}', [CustomerController::class, 'deleteCart'])->name('cart.delete');
 
-    Route::get('checkout', function () {
-        return back();
-    })->name('checkout');
+    /*
+     * Halaman checkout hanya terbit lewat POST dari keranjang. Akses GET
+     * (URL diketik langsung, bookmark, atau refresh) diarahkan ke keranjang.
+     *
+     * back() tidak dipakai di sini: tanpa Referer ia memakai "previous url"
+     * dari session — yang justru bernilai /checkout sendiri karena setiap
+     * permintaan GET menyimpan URL-nya ke session — sehingga rute ini
+     * mengarahkan ke dirinya sendiri dan browser berputar sampai menyerah
+     * (ERR_TOO_MANY_REDIRECTS).
+     */
+    Route::get('checkout', fn () => redirect()->route('cart'))->name('checkout');
     Route::post('checkout', [CustomerController::class, 'checkout'])->name('checkout');
 
     Route::post('checkout/payment', [CustomerController::class, 'checkout_order'])->name('checkout.payment');

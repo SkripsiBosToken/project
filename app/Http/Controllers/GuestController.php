@@ -208,7 +208,11 @@ class GuestController extends Controller
     public function resetPassword($token, PasswordResetAction $password_reset_action){
         $data = $password_reset_action->getByToken($token);
         if (!$data) {
-            return back();
+            // Diarahkan ke forgot-password, bukan back(): tautan reset dibuka
+            // langsung dari email sehingga tidak ada Referer, dan back() akan
+            // menunjuk ke URL reset ini sendiri lalu berputar tanpa henti.
+            return redirect()->route('forgot-password')
+                ->with('error', 'Tautan reset password sudah tidak berlaku. Silakan minta tautan baru.');
         }
         if ($data['expired']  < time()) {
             $password_reset_action->deleteByEmail($data['email']);
