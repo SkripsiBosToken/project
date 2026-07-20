@@ -10,23 +10,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v5
         with:
-          node-version: '18'
+          node-version: '22'
+          cache: npm
 
-      - run: npm install
+      - run: npm ci
       - run: npm run build
 
-      - uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
-          server-dir: /public_html/
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            public/assets/vendors/**
+      # Deploy via HTTPS (bukan FTP) karena firewall hosting memblokir
+      # koneksi FTP dari IP GitHub Actions. Endpoint public/deploy.php
+      # di server yang menerima paket, mengekstrak, dan menjalankan migrasi.
+      - name: Buat paket deploy
+        run: |
+          zip -rq package.zip . \
+            -x ".git/*" \
+            -x ".github/*" \
+            -x "node_modules/*" \
+            -x "tests/*" \
+            -x "public/assets/vendors/*" \
+            -x "package.zip"
+          ls -lh package.zip
+
+      - name: Upload & ekstrak ke server
+        run: |
+          curl --silent --show-error --fail-with-body \
+            -X POST "${{ secrets.DEPLOY_URL }}?action=upload" \
+            -H "X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}" \
+            -F "package=@package.zip"
+
+      - name: Jalankan migrasi database
+        run: |
+          curl --silent --show-error --fail-with-body \
+            -X POST "${{ secrets.DEPLOY_URL }}?action=migrate" \
+            -H "X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}"
