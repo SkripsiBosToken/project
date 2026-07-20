@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Actions\PasswordResetAction;
 use App\Models\User;
+use App\Support\ShippingCalculator;
 use Tests\TestCase;
 
 /**
@@ -99,5 +100,43 @@ class RedirectLoopTest extends TestCase
 
         $this->assertTrue($response->isRedirect(), 'token tidak valid harus dialihkan, bukan error');
         $this->assertNotSame($path, $this->redirectPath($response));
+    }
+
+    /**
+     * Sebelum perbaikan ini, kegagalan checkout_order() (alamat luar
+     * jangkauan, stok habis, charge Midtrans gagal, dst.) memakai back(),
+     * yang mengarah ke Referer pengguna: halaman /checkout tempat tombol
+     * "Bayar Sekarang" berada. Karena GET /checkout kini selalu melempar ke
+     * /cart, back() akan memantul lewat /checkout dan pesan error-nya hilang
+     * di tengah jalan — pelanggan hanya melihat "kembali ke cart" tanpa
+     * keterangan apa pun.
+     */
+    public function test_checkout_order_gagal_langsung_ke_cart_bukan_lewat_checkout(): void
+    {
+        $this->mock(ShippingCalculator::class, function ($mock) {
+            $mock->shouldReceive('resolveUserAddress')->andReturn([
+                'address' => 'Jl. Uji Coba',
+                'latitude' => -7.9,
+                'longitude' => 112.6,
+            ]);
+            $mock->shouldReceive('isWithinServiceArea')->andReturn(false);
+        });
+
+        $response = $this->actingAs($this->user())
+            ->from(url('/checkout'))
+            ->post('/checkout/payment', [
+                'type' => 'buy-cart',
+                'payment_type' => 'bca',
+                'item_details' => '[]',
+            ]);
+
+        $this->assertTrue($response->isRedirect());
+        $this->assertNotSame(
+            '/checkout',
+            $this->redirectPath($response),
+            'kegagalan checkout memantul lewat /checkout sehingga pesan error hilang'
+        );
+        $this->assertSame('/cart', $this->redirectPath($response));
+        $response->assertSessionHas('error', 'Alamat Anda di luar jangkauan pengiriman kami.');
     }
 }

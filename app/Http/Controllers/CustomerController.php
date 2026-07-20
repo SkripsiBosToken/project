@@ -159,7 +159,7 @@ class CustomerController extends Controller
             $address = $shipping->resolveUserAddress($user);
 
             if (! $shipping->isWithinServiceArea($address['latitude'], $address['longitude'])) {
-                return back()->with('error', 'Alamat Anda di luar jangkauan pengiriman kami.');
+                return redirect()->route('cart')->with('error', 'Alamat Anda di luar jangkauan pengiriman kami.');
             }
 
             $shippingPrice = $shipping->cost($address['latitude'], $address['longitude']);
@@ -175,14 +175,14 @@ class CustomerController extends Controller
             $qty = (int) ($item['quantity'] ?? 0);
 
             if (! $variantId || $qty < 1) {
-                return back()->with('error', 'Jumlah produk yang dipesan tidak valid.');
+                return redirect()->route('cart')->with('error', 'Jumlah produk yang dipesan tidak valid.');
             }
 
             $requestedQty[$variantId] = ($requestedQty[$variantId] ?? 0) + $qty;
         }
 
         if ($requestedQty === []) {
-            return back()->with('error', 'Tidak ada produk yang dipesan.');
+            return redirect()->route('cart')->with('error', 'Tidak ada produk yang dipesan.');
         }
 
         $cartId = $validated['type'] === 'buy-cart'
@@ -269,7 +269,7 @@ class CustomerController extends Controller
                 return [$orderId, $itemDetails, $grossAmount];
             });
         } catch (RuntimeException $e) {
-            return back()->with('error', $e->getMessage());
+            return redirect()->route('cart')->with('error', $e->getMessage());
         }
 
         $response = $midtrans_action->chargeTransaction(
@@ -286,7 +286,7 @@ class CustomerController extends Controller
                 'status_message' => $response['status_message'] ?? null,
             ]);
 
-            return back()->with('error', 'Pembayaran gagal dibuat: ' .
+            return redirect()->route('cart')->with('error', 'Pembayaran gagal dibuat: ' .
                 ($response['status_message'] ?? 'gateway tidak merespons') . '. Silakan coba lagi.');
         }
 
