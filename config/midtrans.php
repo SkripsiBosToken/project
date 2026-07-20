@@ -42,11 +42,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Timeout HTTP
+    | Timeout & Retry HTTP
     |--------------------------------------------------------------------------
+    |
+    | Hanya kegagalan tahap koneksi/DNS yang diulang (lihat MidtransAction),
+    | supaya permintaan yang mungkin sudah diterima Midtrans tidak dikirim
+    | dua kali dan menyebabkan penagihan ganda.
+    |
     */
 
     'timeout' => (int) env('MIDTRANS_TIMEOUT', 15),
+
+    'connect_timeout' => (int) env('MIDTRANS_CONNECT_TIMEOUT', 10),
+
+    'retry_times' => (int) env('MIDTRANS_RETRY_TIMES', 3),
+
+    'retry_delay' => (int) env('MIDTRANS_RETRY_DELAY', 300),
 
     'recipient_name' => env('MIDTRANS_RECIPIENT_NAME', 'Kusuka Catering'),
 

@@ -4,15 +4,39 @@ namespace App\Actions;
 
 use App\Models\Order;
 use App\Support\OrderStatus;
+use GuzzleHttp\Exception\TransferException;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class MidtransAction
 {
     /** Status transaksi Midtrans yang berarti pembayaran gagal / batal. */
     private const FAILED_STATUSES = ['deny', 'cancel', 'expire', 'failure'];
+
+    /**
+     * Kode error cURL yang berarti permintaan sama sekali belum terkirim,
+     * sehingga aman diulang tanpa risiko penagihan ganda.
+     *
+     * Timeout (28) sengaja TIDAK masuk daftar: pada timeout, permintaan bisa
+     * saja sudah diterima Midtrans, jadi mengulangnya berisiko menagih dua kali.
+     */
+    private const RETRYABLE_CURL_ERRORS = [
+        2,  // CURLE_FAILED_INIT          - gagal alokasi resource (mis. thread DNS)
+        5,  // CURLE_COULDNT_RESOLVE_PROXY
+        6,  // CURLE_COULDNT_RESOLVE_HOST
+        7,  // CURLE_COULDNT_CONNECT
+        35, // CURLE_SSL_CONNECT_ERROR
+    ];
+
+    /** Dikembalikan saat gateway tidak bisa dihubungi sama sekali. */
+    private const UNREACHABLE = [
+        'status_code' => '0',
+        'status_message' => 'Tidak dapat terhubung ke gateway pembayaran.',
+    ];
 
     private string $serverKey;
     private string $clientKey;
@@ -31,13 +55,66 @@ class MidtransAction
 
     /**
      * HTTP client dengan autentikasi, timeout, dan retry standar.
+     *
+     * IPv4 dipaksa lewat CURLOPT_IPRESOLVE karena hosting ini tidak punya
+     * rute IPv6 keluar; tanpa itu setiap permintaan menunggu lookup AAAA yang
+     * pasti gagal sebelum jatuh balik ke IPv4.
      */
     private function client(): PendingRequest
     {
         return Http::withHeaders([
             'Authorization' => 'Basic ' . base64_encode($this->serverKey . ':'),
             'Accept' => 'application/json',
-        ])->timeout((int) config('midtrans.timeout', 15));
+        ])
+            ->timeout((int) config('midtrans.timeout', 15))
+            ->connectTimeout((int) config('midtrans.connect_timeout', 10))
+            ->withOptions(['curl' => [CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4]])
+            ->retry(
+                (int) config('midtrans.retry_times', 3),
+                (int) config('midtrans.retry_delay', 300),
+                fn (Throwable $e) => $this->isRetryable($e),
+                throw: false
+            );
+    }
+
+    /**
+     * Menentukan apakah kegagalan layak diulang.
+     *
+     * Hanya error tahap koneksi/DNS yang diulang — lihat RETRYABLE_CURL_ERRORS.
+     */
+    private function isRetryable(Throwable $e): bool
+    {
+        $source = $e instanceof TransferException
+            ? $e
+            : ($e->getPrevious() instanceof TransferException ? $e->getPrevious() : null);
+
+        if (! $source || ! method_exists($source, 'getHandlerContext')) {
+            return false;
+        }
+
+        return in_array($source->getHandlerContext()['errno'] ?? null, self::RETRYABLE_CURL_ERRORS, true);
+    }
+
+    /**
+     * Menjalankan permintaan ke Midtrans dan selalu mengembalikan array.
+     *
+     * Kegagalan jaringan diubah jadi nilai kembalian, bukan exception, supaya
+     * pemanggil bisa membatalkan pesanan dan mengembalikan stok dengan rapi
+     * alih-alih menampilkan halaman error ke pelanggan.
+     */
+    private function send(callable $callback, string $operation, array $context = []): array
+    {
+        try {
+            $decoded = $callback($this->client())->json();
+        } catch (ConnectionException | TransferException $e) {
+            Log::error('Midtrans ' . $operation . ': gateway tidak dapat dihubungi', $context + [
+                'error' => $e->getMessage(),
+            ]);
+
+            return self::UNREACHABLE;
+        }
+
+        return is_array($decoded) ? $decoded : [];
     }
 
     /**
@@ -55,24 +132,26 @@ class MidtransAction
 
     public function getTransaction($transaction_id): array
     {
-        $response = $this->client()
-            ->get($this->endpoint . 'v2/' . $transaction_id . '/status')
-            ->json();
-
-        return is_array($response) ? $response : [];
+        return $this->send(
+            fn (PendingRequest $client) => $client->get($this->endpoint . 'v2/' . $transaction_id . '/status'),
+            'status',
+            ['transaction_id' => $transaction_id]
+        );
     }
 
     public function chargeTransaction($request): array
     {
-        $response = $this->client()
-            ->post($this->endpoint . 'v2/charge', $request)
-            ->json();
+        $orderId = $request['transaction_details']['order_id'] ?? null;
 
-        $response = is_array($response) ? $response : [];
+        $response = $this->send(
+            fn (PendingRequest $client) => $client->post($this->endpoint . 'v2/charge', $request),
+            'charge',
+            ['order_id' => $orderId]
+        );
 
         if (! $this->isSuccessful($response)) {
             Log::error('Midtrans charge gagal', [
-                'order_id' => $request['transaction_details']['order_id'] ?? null,
+                'order_id' => $orderId,
                 'status_code' => $response['status_code'] ?? null,
                 'status_message' => $response['status_message'] ?? null,
             ]);
@@ -83,30 +162,29 @@ class MidtransAction
 
     public function getInvoice($invoice_id): array
     {
-        $response = $this->client()
-            ->get($this->endpoint . 'v1/invoices/' . $invoice_id)
-            ->json();
-
-        return is_array($response) ? $response : [];
+        return $this->send(
+            fn (PendingRequest $client) => $client->get($this->endpoint . 'v1/invoices/' . $invoice_id),
+            'get invoice',
+            ['invoice_id' => $invoice_id]
+        );
     }
 
     public function createInvoice($request): array
     {
-        $response = $this->client()
-            ->post($this->endpoint . 'v1/invoices', $request)
-            ->json();
-
-        return is_array($response) ? $response : [];
+        return $this->send(
+            fn (PendingRequest $client) => $client->post($this->endpoint . 'v1/invoices', $request),
+            'create invoice'
+        );
     }
 
     public function cancelTransaction($transaction_id): array
     {
-        $response = $this->client()
-            ->asForm()
-            ->post($this->endpoint . 'v2/' . $transaction_id . '/cancel')
-            ->json();
-
-        $response = is_array($response) ? $response : [];
+        $response = $this->send(
+            fn (PendingRequest $client) => $client->asForm()
+                ->post($this->endpoint . 'v2/' . $transaction_id . '/cancel'),
+            'cancel',
+            ['transaction_id' => $transaction_id]
+        );
 
         if (! $this->isSuccessful($response)) {
             Log::warning('Midtrans cancel gagal', [
@@ -121,12 +199,12 @@ class MidtransAction
 
     public function refundTransaction($transaction_id, $request): array
     {
-        $response = $this->client()
-            ->asJson()
-            ->post($this->endpoint . 'v2/' . $transaction_id . '/refund', $request)
-            ->json();
-
-        $response = is_array($response) ? $response : [];
+        $response = $this->send(
+            fn (PendingRequest $client) => $client->asJson()
+                ->post($this->endpoint . 'v2/' . $transaction_id . '/refund', $request),
+            'refund',
+            ['transaction_id' => $transaction_id]
+        );
 
         if (! $this->isSuccessful($response)) {
             Log::warning('Midtrans refund gagal', [
