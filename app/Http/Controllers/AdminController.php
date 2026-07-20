@@ -11,7 +11,12 @@ use App\Actions\ProductAction;
 use App\Actions\RateAction;
 use App\Actions\SystemAction;
 use App\Actions\UserAction;
+use App\Support\OrderStatus;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdminController extends Controller
@@ -22,8 +27,8 @@ class AdminController extends Controller
         $user = $user_action->get()->count();
         $orders = $order_action->get();
 
-        $progressOrders = $orders->whereIn('status', ['Menunggu Konfirmasi', 'Diproses', 'Dikirim'])->count();
-        $successfulOrders = $orders->whereIn('status', ['Menunggu Konfirmasi', 'Diproses', 'Dikirim', 'Berhasil']);
+        $progressOrders = $orders->whereIn('status', OrderStatus::IN_PROGRESS)->count();
+        $successfulOrders = $orders->whereIn('status', OrderStatus::SUCCESSFUL);
         $successOrders = $successfulOrders->count();
         $daily = $successfulOrders->filter(function ($order) {
             return $order->created_at >= now()->startOfDay() && $order->created_at <= now()->endOfDay();
@@ -50,38 +55,155 @@ class AdminController extends Controller
         return view('admin.setting.setting', compact('system'));;
     }
 
+    /** Jumlah slot produk spesial yang ditampilkan di halaman pengaturan. */
+    private const SPECIAL_PRODUCT_SLOTS = 4;
+
     public function specialProduct(SystemAction $system_action, ProductAction $product_action)
     {
-        $specialProduct = [];
         $products = $product_action->get();
-        $datas = json_decode($system_action->get()['special_product'], true);
-        foreach ($datas as $key => $item) {
-            $product = $product_action->getById($item);
-            $data = [
-                'product_id' => $item,
-                'product' => $product
+
+        // json_decode bisa mengembalikan null (kolom kosong/JSON rusak), dan
+        // isinya bisa kurang dari 4 entri. View menampilkan 4 slot tetap, jadi
+        // array-nya selalu dinormalisasi ke panjang itu — sebelumnya halaman
+        // ini error "Undefined array key 0" pada instalasi baru yang kolom
+        // special_product-nya masih kosong.
+        $datas = json_decode($system_action->get()['special_product'] ?? '[]', true) ?: [];
+
+        $specialProduct = [];
+        for ($slot = 0; $slot < self::SPECIAL_PRODUCT_SLOTS; $slot++) {
+            $productId = $datas[$slot] ?? null;
+
+            $specialProduct[] = [
+                'product_id' => $productId,
+                'product' => $productId ? $product_action->getById($productId) : null,
             ];
-            array_push($specialProduct, $data);
         }
-        return view('admin.setting.special-product', compact('specialProduct', 'products'));;
+
+        return view('admin.setting.special-product', compact('specialProduct', 'products'));
     }
 
+    // Ketiga method di bawah memakai `?: []` agar kolom JSON yang kosong atau
+    // rusak menghasilkan array kosong, bukan null. Tanpa itu, view-nya
+    // melakukan foreach atas null dan halaman pengaturan error.
     public function ourCustomer(SystemAction $system_action)
     {
-        $customers = json_decode($system_action->get()['our_customer'], true);
-        return view('admin.setting.customer', compact('customers'));;
+        $customers = json_decode($system_action->get()['our_customer'] ?? '[]', true) ?: [];
+        return view('admin.setting.customer', compact('customers'));
     }
 
     public function socialMedia(SystemAction $system_action)
     {
-        $medias = json_decode($system_action->get()['social_media'], true);
-        return view('admin.setting.social-media', compact('medias'));;
+        $medias = json_decode($system_action->get()['social_media'] ?? '[]', true) ?: [];
+        return view('admin.setting.social-media', compact('medias'));
+    }
+
+    /**
+     * Lebar kartu layanan pada grid halaman Tentang Kami.
+     * `otomatis` mengikuti pola mosaik berselang-seling.
+     */
+    public const SERVICE_SIZES = ['otomatis', 'kecil', 'sedang', 'besar', 'penuh'];
+
+    public function service(SystemAction $system_action)
+    {
+        $services = json_decode($system_action->get()['our_service'] ?? '[]', true) ?: [];
+
+        return view('admin.setting.service', compact('services'));
+    }
+
+    /**
+     * Menyimpan daftar "Layanan Kami": ubah judul/foto, tambah layanan baru,
+     * dan hapus yang tidak dipakai. Foto lama ikut dihapus dari disk supaya
+     * tidak menumpuk menjadi berkas yatim.
+     */
+    public function updateService(Request $request, SystemAction $system_action)
+    {
+        $sizes = implode(',', self::SERVICE_SIZES);
+
+        $request->validate([
+            'services.*.label' => ['required', 'string', 'max:80'],
+            'services.*.size' => ['required', 'in:' . $sizes],
+            // Foto divalidasi tipe & ukurannya: tanpa ini file apa pun bisa
+            // diunggah ke folder publik.
+            'services.*.image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'new_services.*.label' => ['required', 'string', 'max:80'],
+            'new_services.*.size' => ['required', 'in:' . $sizes],
+            'new_services.*.image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+        ], [], [
+            'services.*.label' => 'judul layanan',
+            'new_services.*.label' => 'judul layanan baru',
+            'services.*.image' => 'foto layanan',
+            'new_services.*.image' => 'foto layanan baru',
+        ]);
+
+        $services = json_decode($system_action->get()['our_service'] ?? '[]', true) ?: [];
+
+        $deleted = json_decode($request->input('deleted_service_indexes'), true);
+        $deleted = is_array($deleted) ? $deleted : [];
+
+        foreach ($deleted as $index) {
+            if (isset($services[$index])) {
+                $this->deleteUploadedFile($services[$index]['image'] ?? null);
+                unset($services[$index]);
+            }
+        }
+
+        foreach ($request->input('services', []) as $index => $item) {
+            if (! isset($services[$index])) {
+                continue;
+            }
+
+            $services[$index]['label'] = $item['label'];
+            $services[$index]['size'] = $item['size'];
+
+            if ($file = $request->file("services.$index.image")) {
+                $this->deleteUploadedFile($services[$index]['image'] ?? null);
+                $services[$index]['image'] = '/storage/' . $file->store('uploads/services', 'public');
+            }
+        }
+
+        foreach ($request->file('new_services', []) as $index => $files) {
+            $label = $request->input("new_services.$index.label");
+            $size = $request->input("new_services.$index.size");
+
+            if (! isset($files['image'])) {
+                continue;
+            }
+
+            $services[] = [
+                'label' => $label,
+                'image' => '/storage/' . $files['image']->store('uploads/services', 'public'),
+                'size' => $size,
+            ];
+        }
+
+        // array_values: indeks dirapikan setelah penghapusan agar tetap
+        // menjadi array JSON, bukan objek dengan kunci melompat.
+        $system_action->update(['our_service' => json_encode(array_values($services))]);
+
+        return redirect()->back()->with('success', 'Layanan berhasil diperbarui.');
+    }
+
+    /**
+     * Menghapus berkas hasil unggahan. Hanya menyentuh berkas di dalam
+     * folder uploads agar aset bawaan (/assets/images/...) tidak ikut hilang.
+     */
+    private function deleteUploadedFile(?string $url): void
+    {
+        if (! $url || ! Str::startsWith($url, '/storage/uploads/')) {
+            return;
+        }
+
+        $path = public_path(ltrim(str_replace('/storage/', 'storage/', $url), '/'));
+
+        if (is_file($path)) {
+            @unlink($path);
+        }
     }
 
     public function event(SystemAction $system_action)
     {
-        $events = json_decode($system_action->get()['promo_event'], true);
-        return view('admin.setting.event', compact('events'));;
+        $events = json_decode($system_action->get()['promo_event'] ?? '[]', true) ?: [];
+        return view('admin.setting.event', compact('events'));
     }
 
     public function updateSetting(Request $request, SystemAction $system_action)
@@ -155,8 +277,24 @@ class AdminController extends Controller
 
     public function updateSpecialSetting(Request $request, SystemAction $system_action)
     {
-        $specialProduct = array($request['product_01'], $request['product_02'], $request['product_03'], $request['product_04']);
+        $request->validate([
+            'product_01' => ['nullable', 'string', 'exists:products,id'],
+            'product_02' => ['nullable', 'string', 'exists:products,id'],
+            'product_03' => ['nullable', 'string', 'exists:products,id'],
+            'product_04' => ['nullable', 'string', 'exists:products,id'],
+        ]);
+
+        // Slot kosong dibuang, bukan disimpan sebagai string kosong — nilai ""
+        // akan membuat halaman depan mencari produk dengan id kosong.
+        $specialProduct = array_values(array_filter([
+            $request['product_01'],
+            $request['product_02'],
+            $request['product_03'],
+            $request['product_04'],
+        ]));
+
         $system_action->update(['special_product' => json_encode($specialProduct)]);
+
         return redirect()->back()->with('success', 'Pengaturan berhasil diperbarui.');
     }
 
@@ -343,30 +481,98 @@ class AdminController extends Controller
         return view('admin.order.detail', compact('data', 'user'));
     }
 
+    /**
+     * Mengubah status pesanan dari panel admin.
+     *
+     * Perbaikan dari versi sebelumnya:
+     *  - Jalur refund dulu langsung mengembalikan array mentah (tampil sebagai
+     *    JSON di browser) dan TIDAK PERNAH mengubah status pesanan, sehingga
+     *    pesanan yang sudah direfund tetap tampil "Menunggu Konfirmasi".
+     *  - Jalur cancel juga tidak mengubah status dan tidak mengembalikan stok.
+     *  - Hasil dari Midtrans tidak pernah diperiksa, jadi refund/cancel yang
+     *    ditolak gateway tetap dianggap berhasil.
+     */
     public function update_status($id, $status, OrderAction $order_action, MidtransAction $midtrans_action)
     {
-        $data = $order_action->getById($id);
-        if ($data['status'] === 'Menunggu Konfirmasi' && $status === "Gagal") {
-            //Refund
-            $request = [
-                'amount' => (int) $data['total_price'],
-                'reason' => 'Admin Refund'
-            ];
-            return $midtrans_action->refundTransaction($data['transaction_id'], $request);
+        if (! in_array($status, OrderStatus::all(), true)) {
+            abort(400, 'Status pesanan tidak dikenal.');
         }
-        if ($data['status'] === 'Belum Dibayar' && $status === "Gagal") {
-            //Cancel
-            $midtrans_action->cancelTransaction($data['transaction_id']);
-            return redirect()->route('data.pesanan');
+
+        $order = $order_action->getById($id);
+
+        abort_if(! $order, 404);
+
+        // Membatalkan pesanan yang sudah dibayar => refund ke Midtrans.
+        if ($order['status'] === OrderStatus::WAITING_CONFIRMATION && $status === OrderStatus::FAILED) {
+            $response = $midtrans_action->refundTransaction($order['transaction_id'], [
+                'amount' => (int) $order['total_price'],
+                'reason' => 'Admin Refund',
+            ]);
+
+            if (! $midtrans_action->isSuccessful($response)) {
+                return redirect()->route('data.pesanan')->with(
+                    'error',
+                    'Refund gagal: ' . ($response['status_message'] ?? 'gateway menolak permintaan refund.')
+                );
+            }
+
+            $this->failOrderAndRestoreStock($order, OrderStatus::REFUNDED);
+
+            return redirect()->route('data.pesanan')->with('success', 'Refund berhasil diproses.');
         }
+
+        // Membatalkan pesanan yang belum dibayar => cancel di Midtrans.
+        if ($order['status'] === OrderStatus::UNPAID && $status === OrderStatus::FAILED) {
+            $response = $midtrans_action->cancelTransaction($order['transaction_id']);
+
+            if (! $midtrans_action->isSuccessful($response)) {
+                return redirect()->route('data.pesanan')->with(
+                    'error',
+                    'Pembatalan gagal: ' . ($response['status_message'] ?? 'gateway menolak pembatalan.')
+                );
+            }
+
+            $this->failOrderAndRestoreStock($order, OrderStatus::FAILED);
+
+            return redirect()->route('data.pesanan')->with('success', 'Pesanan dibatalkan.');
+        }
+
         $order_action->updateStatus($id, $status);
-        return redirect()->route('data.pesanan');
+
+        return redirect()->route('data.pesanan')->with('success', 'Status pesanan diperbarui.');
+    }
+
+    /**
+     * Menandai pesanan gagal/refund sekaligus mengembalikan stok varian.
+     */
+    private function failOrderAndRestoreStock($order, string $newStatus): void
+    {
+        DB::transaction(function () use ($order, $newStatus) {
+            foreach ($order->order_items as $item) {
+                if ($item->product_variant_id) {
+                    DB::table('product_variants')
+                        ->where('id', $item->product_variant_id)
+                        ->increment('stock', (int) $item->quantity);
+                }
+            }
+
+            $order->status = $newStatus;
+            $order->save();
+        });
     }
 
     public function generateInvoice($order_id, OrderAction $order_action, SystemAction $system_action)
     {
         $system = $system_action->get();
         $order = $order_action->getById($order_id);
+
+        abort_if(! $order, 404);
+
+        // Method ini juga terdaftar di route pelanggan (`order/receipt/{id}`)
+        // yang hanya dilindungi middleware auth, jadi tanpa pengecekan ini
+        // pelanggan mana pun bisa mengunduh nota pesanan milik orang lain.
+        $viewer = Auth::user();
+        abort_if(! $viewer->isAdmin() && $order->user_id !== $viewer->id, 403);
         $pdf = Pdf::loadView('admin.order.receipt', compact('order', 'system'))
             ->setPaper('A4');
         return $pdf->download('nota_' . $order->id . '.pdf');
@@ -374,40 +580,58 @@ class AdminController extends Controller
 
     public function historyOrder(OrderAction $order_action)
     {
-        $datas = $order_action->getByStatus('Berhasil');
+        $datas = $order_action->getByStatus(OrderStatus::COMPLETED);
         return view('admin.order.history', compact('datas'));
     }
 
     public function reportHistory(Request $request, OrderAction $order_action)
     {
+        $validated = $request->validate([
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+        ]);
 
-        $start_date = $request['start_date'];
-        $end_date = $request['end_date'];
-        $orders = $order_action->getByStatus('Berhasil')->whereBetween('created_at', [$start_date, $end_date]);
+        $start_date = $validated['start_date'];
+        $end_date = $validated['end_date'];
+
+        // endOfDay() penting: tanggal tanpa jam dianggap pukul 00:00, sehingga
+        // pesanan pada hari terakhir rentang justru tidak ikut terhitung.
+        $orders = $order_action->getByStatus(OrderStatus::COMPLETED)
+            ->whereBetween('created_at', [
+                Carbon::parse($start_date)->startOfDay(),
+                Carbon::parse($end_date)->endOfDay(),
+            ]);
+
         $reportData = [];
 
         foreach ($orders as $order) {
             foreach ($order->order_items as $item) {
-                $productName = $item->product_variant->product->name;
-                $variantName = $item->product_variant->name_type;
-                $fullProductName = "{$productName} - {$variantName}";
+                if (! $item->product_variant) {
+                    continue;
+                }
 
-                if (!isset($reportData[$fullProductName])) {
+                $productName = $item->product_variant->product->name ?? 'Produk dihapus';
+                $fullProductName = "{$productName} - {$item->product_variant->name_type}";
+
+                if (! isset($reportData[$fullProductName])) {
                     $reportData[$fullProductName] = [
                         'sold' => 0,
                         'subtotal' => 0,
-                        'remaining_stock' => $item->product_variant->stock,
+                        // Stok varian sudah dipotong saat checkout, jadi nilai
+                        // ini langsung dipakai apa adanya. Versi sebelumnya
+                        // menguranginya lagi dengan qty terjual sehingga sisa
+                        // stok pada laporan selalu lebih kecil dari kenyataan.
+                        'remaining_stock' => (int) $item->product_variant->stock,
                     ];
                 }
 
                 $reportData[$fullProductName]['sold'] += $item->quantity;
                 $reportData[$fullProductName]['subtotal'] += $item->quantity * $item->price;
-                $reportData[$fullProductName]['remaining_stock'] -= $item->quantity;
             }
         }
 
         $pdf = Pdf::loadView('admin.order.report', compact('reportData', 'start_date', 'end_date'));
-        return $pdf->download('Laporan_Harian_' . $start_date . '-' . $end_date . '.pdf');
+        return $pdf->download('Laporan_' . $start_date . '_sd_' . $end_date . '.pdf');
     }
 
     public function catalogues(ProductAction $product_action, Order_ItemAction $order_item_action)
@@ -486,7 +710,11 @@ class AdminController extends Controller
         $product_action->update($data, $id);
 
         if ($request->filled('deletedVariantIds')) {
-            foreach (json_decode($request->input('deletedVariantIds')) as $variant_id) {
+            // Input ini berasal dari klien; JSON yang tidak valid akan membuat
+            // json_decode mengembalikan null dan foreach-nya error.
+            $deletedIds = json_decode($request->input('deletedVariantIds'), true);
+
+            foreach (is_array($deletedIds) ? $deletedIds : [] as $variant_id) {
                 $product_variant_action->delete($variant_id);
             }
         }

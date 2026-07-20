@@ -18,13 +18,13 @@ class Admin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = User::find(Auth::user()->id);
-        $role_action = new RoleAction();
-        $admin_role = $role_action->getByName('Admin');
-        if ($user['role_id'] === $admin_role['id']) {
+        // Sebelumnya method ini melakukan query ulang ke tabel users dan roles
+        // pada setiap request, dan error bila role "Admin" tidak ada di
+        // database. Relasi role sudah cukup untuk pengecekan ini.
+        if (Auth::check() && Auth::user()->isAdmin()) {
             return $next($request);
-        } else {
-            return redirect()->route('home');
         }
+
+        return redirect()->route('home');
     }
 }

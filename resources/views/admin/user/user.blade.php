@@ -1,51 +1,49 @@
-<x-layout.admin-v2>
-    <div>
-        <div class="content my-3">
-            <div class="animated fadeIn">
-                <div class="row">
+@php
+    // Akun admin disembunyikan dari daftar pelanggan.
+    $customers = collect($datas)->filter(fn ($item) => ($item['role']['name'] ?? null) !== 'Admin');
+@endphp
 
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <strong class="card-title">Data Pelanggan</strong>
-                            </div>
-                            <div class="card-body">
-                                <table id="bootstrap-data-table-export" class="table table-striped table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Email</th>
-                                            <th>Phone Number</th>
-                                            <th>Point</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($datas as $item)
-                                            @if ($item['role']['name'] !== 'Admin')
-                                                <tr>
-                                                    <td>{{ $item['name'] }}</td>
-                                                    <td>{{ $item['email'] }}</td>
-                                                    <td>{{ $item['phone_number'] }}</td>
-                                                    <td>{{ $item['point'] }}</td>
-                                                    <td class="flex flex-row gap-x-2">
-                                                        <a
-                                                            href="{{ route('detail.pelanggan', ['id' => $item['id']]) }}">
-                                                            <button class="btn btn-primary mt-2">
-                                                                <i class="fa fa-eye mr-1"></i> Detail
-                                                            </button></a>
-                                                    </td>
+<x-layout.admin-v2 title="Daftar Pelanggan" subtitle="{{ $customers->count() }} pelanggan terdaftar">
 
-                                                </tr>
-                                            @endif
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+    <x-ui.table placeholder="Cari nama, email, atau nomor telepon…" emptyTitle="Belum ada pelanggan"
+        emptyMessage="Pelanggan yang mendaftar akan tampil di sini.">
+
+        <x-slot:head>
+            <th class="px-4 py-3 font-semibold">Nama</th>
+            <th class="px-4 py-3 font-semibold">Email</th>
+            <th class="px-4 py-3 font-semibold">Telepon</th>
+            <th class="px-4 py-3 text-right font-semibold">Poin</th>
+            <th class="px-4 py-3 text-right font-semibold">Aksi</th>
+        </x-slot:head>
+
+        @foreach ($customers as $item)
+            <tr data-row class="transition-colors hover:bg-gray-50/70">
+                <td class="px-4 py-3">
+                    <div class="flex items-center gap-3">
+                        <span class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
+                            {{ Str::upper(Str::substr($item['name'], 0, 1)) }}
+                        </span>
+                        <span class="text-sm font-medium text-gray-900">{{ $item['name'] }}</span>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                </td>
+
+                <td class="px-4 py-3 text-sm text-gray-600">{{ $item['email'] }}</td>
+                <td class="px-4 py-3 text-sm text-gray-600">{{ $item['phone_number'] }}</td>
+
+                <td class="px-4 py-3 text-right">
+                    <span class="inline-block rounded-full bg-warning-50 px-2.5 py-1 text-xs font-semibold text-warning-700">
+                        {{ number_format($item['point'] ?? 0, 0, ',', '.') }}
+                    </span>
+                </td>
+
+                <td class="px-4 py-3 text-right">
+                    <a href="{{ route('detail.pelanggan', ['id' => $item['id']]) }}"
+                        class="inline-flex items-center gap-1.5 rounded-lg bg-primary px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-primary-900">
+                        <i class="fa-solid fa-eye"></i>Detail
+                    </a>
+                </td>
+            </tr>
+        @endforeach
+    </x-ui.table>
+
 </x-layout.admin-v2>

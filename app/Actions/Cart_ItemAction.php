@@ -7,8 +7,6 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-use function PHPUnit\Framework\isEmpty;
-
 class Cart_ItemAction
 {
     /**
@@ -58,7 +56,26 @@ class Cart_ItemAction
 
     public function delete($id)
     {
-        Cart_Item::find($id)->delete();
+        Cart_Item::find($id)?->delete();
+    }
+
+    /**
+     * Menghapus item keranjang hanya bila item itu milik user yang sedang
+     * login. Mengembalikan false bila item tidak ada atau milik user lain.
+     */
+    public function deleteForUser($id, $user_id): bool
+    {
+        $item = Cart_Item::whereKey($id)
+            ->whereHas('cart', fn ($query) => $query->where('user_id', $user_id))
+            ->first();
+
+        if (! $item) {
+            return false;
+        }
+
+        $item->delete();
+
+        return true;
     }
 
     public function deleteByCartId($cart_id)

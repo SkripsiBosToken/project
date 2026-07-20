@@ -1,156 +1,149 @@
-<x-layout.admin-v2>
-    <div>
-        <div class="content mt-3">
-            <div class="animated fadeIn">
-                <div class="row">
+@php
+    use App\Support\OrderStatus;
 
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <strong class="card-title">Data Pesanan</strong>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <div class="btn-group" role="group" aria-label="Filter Status">
-                                        @php
-                                            $statuses = [
-                                                'Belum Dibayar',
-                                                'Menunggu Konfirmasi',
-                                                'Diproses',
-                                                'Dikirim',
-                                                'Berhasil',
-                                                'Gagal',
-                                            ];
-                                        @endphp
-                                        <button type="button" class="btn btn-secondary active"
-                                            data-status="">Semua</button>
-                                        @foreach ($statuses as $status)
-                                            <button type="button" class="btn btn-secondary"
-                                                data-status="{{ $status }}">{{ $status }}</button>
+    // Transisi status yang diizinkan per status saat ini. Sebelumnya semua
+    // opsi selalu tampil, sehingga pesanan yang BELUM DIBAYAR pun bisa
+    // ditandai "Berhasil" — melewati proses pembayaran sepenuhnya.
+    $allowedTransitions = [
+        OrderStatus::UNPAID => [OrderStatus::FAILED],
+        OrderStatus::WAITING_CONFIRMATION => [OrderStatus::PROCESSING, OrderStatus::FAILED],
+        OrderStatus::PROCESSING => [OrderStatus::SHIPPED, OrderStatus::FAILED],
+        OrderStatus::SHIPPED => [OrderStatus::COMPLETED],
+        OrderStatus::COMPLETED => [],
+        OrderStatus::FAILED => [],
+        OrderStatus::REFUNDED => [],
+    ];
+
+    $orders = collect($datas)->sortByDesc('created_at');
+@endphp
+
+<x-layout.admin-v2 title="Data Pesanan" subtitle="Kelola dan perbarui status pesanan pelanggan">
+
+    <div x-data="{ status: '' }">
+
+        {{-- Filter status --}}
+        <div class="no-scrollbar mb-4 flex gap-2 overflow-x-auto pb-1">
+            <button type="button" @click="status = ''"
+                class="whitespace-nowrap rounded-lg border px-3.5 py-2 text-sm font-medium transition"
+                :class="status === '' ? 'border-primary bg-primary text-white' : 'border-gray-300 bg-white text-gray-600 hover:border-primary hover:text-primary'">
+                Semua ({{ $orders->count() }})
+            </button>
+
+            @foreach (OrderStatus::all() as $statusOption)
+                @php $count = $orders->where('status', $statusOption)->count(); @endphp
+                @if ($count > 0)
+                    <button type="button" @click="status = status === '{{ $statusOption }}' ? '' : '{{ $statusOption }}'"
+                        class="whitespace-nowrap rounded-lg border px-3.5 py-2 text-sm font-medium transition"
+                        :class="status === '{{ $statusOption }}' ? 'border-primary bg-primary text-white' : 'border-gray-300 bg-white text-gray-600 hover:border-primary hover:text-primary'">
+                        {{ $statusOption }} ({{ $count }})
+                    </button>
+                @endif
+            @endforeach
+        </div>
+
+        <x-ui.table placeholder="Cari pesanan, produk, atau pelanggan…" emptyTitle="Belum ada pesanan"
+            emptyMessage="Pesanan yang masuk akan tampil di sini.">
+
+            <x-slot:head>
+                <th class="px-4 py-3 font-semibold">Pesanan</th>
+                <th class="px-4 py-3 font-semibold">Pelanggan</th>
+                <th class="px-4 py-3 font-semibold">Status</th>
+                <th class="px-4 py-3 text-right font-semibold">Total</th>
+                <th class="px-4 py-3 font-semibold">Tanggal</th>
+                <th class="px-4 py-3 text-right font-semibold">Aksi</th>
+            </x-slot:head>
+
+            @foreach ($orders as $order)
+                <tr data-row x-show="status === '' || status === '{{ $order['status'] }}'"
+                    class="align-top transition-colors hover:bg-gray-50/70">
+
+                    <td class="px-4 py-3">
+                        <p class="font-mono text-xs text-gray-400">
+                            #{{ Str::upper(Str::limit($order['id'], 8, '')) }}
+                        </p>
+                        <ul class="mt-1 space-y-0.5">
+                            @forelse ($order['order_items'] as $item)
+                                <li class="text-sm text-gray-900">
+                                    {{ $item['product_variant']['product']['name'] ?? 'Produk dihapus' }}
+                                    @if (! empty($item['product_variant']['name_type']))
+                                        <span class="text-gray-500">— {{ $item['product_variant']['name_type'] }}</span>
+                                    @endif
+                                    <span class="font-semibold text-primary">×{{ $item['quantity'] }}</span>
+                                </li>
+                            @empty
+                                <li class="text-sm italic text-gray-400">Tidak ada rincian item</li>
+                            @endforelse
+                        </ul>
+                    </td>
+
+                    <td class="px-4 py-3">
+                        <p class="text-sm font-medium text-gray-900">{{ $order['user']['name'] ?? '—' }}</p>
+                        <p class="text-xs text-gray-500">{{ $order['user']['phone_number'] ?? '' }}</p>
+                    </td>
+
+                    <td class="px-4 py-3">
+                        <x-ui.status-badge :status="$order['status']" size="sm" />
+                    </td>
+
+                    <td class="whitespace-nowrap px-4 py-3 text-right text-sm font-semibold text-gray-900">
+                        Rp {{ number_format($order['total_price'], 0, ',', '.') }}
+                    </td>
+
+                    {{-- Tanggal diformat sepenuhnya di server. Versi lama
+                         memformat di server LALU menjalankan new Date() atas
+                         hasilnya di browser, yang selalu menghasilkan
+                         "Invalid Date". --}}
+                    <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
+                        {{ \Carbon\Carbon::parse($order['created_at'])->locale('id')->isoFormat('D MMM YYYY') }}
+                        <span class="block text-xs text-gray-400">
+                            {{ \Carbon\Carbon::parse($order['created_at'])->format('H:i') }}
+                        </span>
+                    </td>
+
+                    <td class="px-4 py-3">
+                        <div class="flex flex-wrap items-center justify-end gap-1.5">
+                            <a href="{{ route('detail.pesanan', ['id' => $order['id']]) }}"
+                                class="inline-flex items-center gap-1.5 rounded-lg bg-primary px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-primary-900">
+                                <i class="fa-solid fa-eye"></i>Detail
+                            </a>
+
+                            @php $transitions = $allowedTransitions[$order['status']] ?? []; @endphp
+                            @if ($transitions)
+                                <div class="relative" x-data="{ open: false }" @keydown.escape="open = false">
+                                    <button @click="open = !open" :aria-expanded="open"
+                                        class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary">
+                                        Ubah Status <i class="fa-solid fa-chevron-down text-[9px]"></i>
+                                    </button>
+
+                                    <div x-show="open" x-cloak x-transition @click.away="open = false"
+                                        class="absolute right-0 z-10 mt-1 w-44 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-card-hover">
+                                        @foreach ($transitions as $target)
+                                            <a href="{{ route('ubah-status.pesanan', ['id' => $order['id'], 'status' => $target]) }}"
+                                                onclick="return confirm('Ubah status pesanan ini menjadi {{ $target }}?')"
+                                                class="block px-3 py-2 text-xs transition-colors
+                                                    {{ $target === OrderStatus::FAILED ? 'text-primary-danger hover:bg-red-50' : 'text-gray-700 hover:bg-primary-50 hover:text-primary' }}">
+                                                @if ($target === OrderStatus::FAILED)
+                                                    {{ $order['status'] === OrderStatus::UNPAID ? 'Batalkan Pesanan' : 'Batalkan & Refund' }}
+                                                @else
+                                                    Tandai {{ $target }}
+                                                @endif
+                                            </a>
                                         @endforeach
                                     </div>
                                 </div>
+                            @endif
 
-                                <table id="bootstrap-data-table-export" class="table table-striped table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Product</th>
-                                            <th>Status</th>
-                                            <th>Total Harga</th>
-                                            <th>Tanggal Pemesanan</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($datas as $order)
-                                            <tr data-status="{{ $order['status'] }}">
-                                                <td>
-                                                    @foreach ($order['order_items'] as $item)
-                                                        <li>{{ $item['product_variant']['product']['name'] }} -
-                                                            {{ $item['product_variant']['name_type'] }}
-                                                            ({{ $item['quantity'] }}X)
-                                                        </li>
-                                                    @endforeach
-                                                </td>
-                                                <td>{{ $order['status'] }}</td>
-                                                <td>{{ 'Rp ' . number_format($order['total_price'], 0, ',', '.') }}</td>
-                                                <td id="created-at-{{ $order['id'] }}">{{ \Carbon\Carbon::parse($order['created_at'])->translatedFormat('d F Y, H:i:s') }}</td>
-                                                <td class="flex flex-row gap-x-2">
-                                                    <a href="{{ route('detail.pesanan', ['id' => $order['id']]) }}">
-                                                        <button class="btn btn-primary mt-2">
-                                                            <i class="fa fa-eye mr-1"></i> Detail
-                                                        </button></a>
-                                                    <div class="user-area dropdown float-right">
-                                                        <button class="btn btn-warning mt-2" href="#"
-                                                            class="dropdown-toggle" data-toggle="dropdown"
-                                                            aria-haspopup="true" aria-expanded="false">
-                                                            Ubah Status
-                                                        </button>
-
-                                                        <div class="user-menu dropdown-menu">
-                                                            @if ($order['status'] === 'Belum Dibayar')
-                                                                <a class="nav-link"
-                                                                    href="{{ route('ubah-status.pesanan', ['id' => $order['id'], 'status' => 'Gagal']) }}">Batalkan</a>
-                                                            @endif
-                                                            <a class="nav-link"
-                                                                href="{{ route('ubah-status.pesanan', ['id' => $order['id'], 'status' => 'Diproses']) }}">Diproses</a>
-                                                            <a class="nav-link"
-                                                                href="{{ route('ubah-status.pesanan', ['id' => $order['id'], 'status' => 'Dikirim']) }}">Dikirim</a>
-                                                            <a class="nav-link"
-                                                                href="{{ route('ubah-status.pesanan', ['id' => $order['id'], 'status' => 'Berhasil']) }}">Berhasil</a>
-                                                        </div>
-                                                    </div>
-                                                    @if ($order['status'] !== 'Belum Dibayar' && $order['status'] !== 'Gagal')
-                                                        <a href="{{ route('nota.pesanan', ['id' => $order['id']]) }}"><button
-                                                                class="btn btn-info mt-2">
-                                                                <i class="fa fa-print mr-1"></i> Cetak Nota
-                                                            </button></a>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
+                            @if (! in_array($order['status'], [OrderStatus::UNPAID, OrderStatus::FAILED], true))
+                                <a href="{{ route('nota.pesanan', ['id' => $order['id']]) }}"
+                                    class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary">
+                                    <i class="fa-solid fa-print"></i>Nota
+                                </a>
+                            @endif
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    </td>
+                </tr>
+            @endforeach
+        </x-ui.table>
     </div>
+
 </x-layout.admin-v2>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        document.querySelectorAll("[id^='created-at-']").forEach(element => {
-            element.textContent = formatDateTime(element.textContent);
-        });
-
-        const buttons = document.querySelectorAll('[data-status]');
-        let activeStatus = "";
-
-        buttons.forEach(button => {
-            button.addEventListener('click', function() {
-                const status = this.getAttribute('data-status');
-
-                // Toggle button active
-                buttons.forEach(btn => btn.classList.remove('active'));
-                if (activeStatus !== status) {
-                    this.classList.add('active');
-                    activeStatus = status;
-                } else {
-                    activeStatus = "";
-                    document.querySelector('[data-status=""]').classList.add('active');
-                }
-
-                document.querySelectorAll('tbody tr').forEach(row => {
-                    const rowStatus = row.getAttribute('data-status');
-                    if (activeStatus === "" || rowStatus === activeStatus) {
-                        row.style.display = "";
-                    } else {
-                        row.style.display = "none";
-                    }
-                });
-            });
-        });
-    });
-
-    function formatDateTime(dateString) {
-        const date = new Date(dateString);
-        if (isNaN(date)) return "Invalid Date";
-
-        const dateOptions = {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-        };
-        const timeOptions = {
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric',
-            hour12: false
-        };
-
-        return date.toLocaleDateString('id-ID', dateOptions) + ', ' + date.toLocaleTimeString('id-ID', timeOptions);
-    }
-</script>

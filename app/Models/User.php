@@ -55,8 +55,18 @@ class User extends Authenticatable
         return $this->hasOne(Role::class, 'id', 'role_id');
     }
 
+    /**
+     * Dipakai untuk otorisasi resource yang boleh diakses admin maupun
+     * pemiliknya sendiri (mis. unduh nota pesanan).
+     */
+    public function isAdmin() : bool {
+        return $this->role?->name === 'Admin';
+    }
+
     public function cart() : HasOne {
-        return $this->hasOne(Cart::class, 'cart_id', 'id');
+        // Foreign key pada tabel carts adalah user_id, bukan cart_id.
+        // Definisi lama tidak pernah cocok sehingga relasi ini selalu kosong.
+        return $this->hasOne(Cart::class, 'user_id', 'id');
     }
 
     public function orders() : HasMany {

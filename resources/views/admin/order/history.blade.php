@@ -1,111 +1,99 @@
-<x-layout.admin-v2>
-    <div> <div class="content my-3">
-            <div class="animated fadeIn">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <strong class="card-title">Pilih Rentang Pendataan</strong>
-                            </div>
-                            <div class="card-body">
-                                <div id="pay-invoice">
-                                    <div class="card-body">
-                                        <x-form.custom action="{{ route('data.riwayat.laporan.pesanan') }}"
-                                            method="get">
-                                            <div class="form-group">
-                                                <label for="cc-payment" class="control-label mb-1">Pilih Rentang
-                                                    Tanggal</label>
-                                                <div class="grid md:grid-cols-2 gap-4">
-                                                    <input type="date" class="form-control" name="start_date"
-                                                        aria-required="true" aria-invalid="false" required>
-                                                    <input type="date" class="form-control" name="end_date"
-                                                        aria-required="true" aria-invalid="false" required>
-                                                </div>
-                                                <button type="submit" class="btn btn-primary mt-2"><i class="fa fa-print mr-1"></i> Download
-                                                    Laporan</button>
-                                            </div>
-                                        </x-form.custom>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <strong class="card-title">Data Laporan Pesanan</strong>
-                            </div>
-                            <div class="card-body">
-                                <table id="bootstrap-data-table-export" class="table table-striped table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Product</th>
-                                            <th>Total Harga</th>
-                                            <th>Tanggal Pemesanan</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($datas as $order)
-                                            <tr>
-                                                <td>{{ $order['id'] }}</td>
-                                                <td>
-                                                    @foreach ($order['order_items'] as $item)
-                                                        <li>{{ $item['product_variant']['product']['name'] }} -
-                                                            {{ $item['product_variant']['name_type'] }}
-                                                            ({{ $item['quantity'] }}X)
-                                                        </li>
-                                                    @endforeach
-                                                </td>
-                                                <td>{{ 'Rp ' . number_format($order['total_price'], 0, ',', '.') }}</td>
-                                                <td id="created-at-{{ $order['id'] }}">{{ $order['created_at'] }}</td>
+@php
+    $orders = collect($datas)->sortByDesc('created_at');
+    $revenue = $orders->sum('total_price');
+@endphp
 
-                                                <td class="flex flex-row gap-x-2">
-                                                    <a href="{{ route('detail.pesanan', ['id' => $order['id']]) }}">
-                                                        <button class="btn btn-primary mt-2">
-                                                            <i class="fa fa-eye mr-1"></i> Detail
-                                                        </button></a>
-                                                    @if ($order['status'] !== 'Belum Dibayar' && $order['status'] !== 'Gagal')
-                                                        <a href="{{ route('nota.pesanan', ['id' => $order['id']]) }}">
-                                                            <button class="btn btn-info mt-2">
-                                                                <i class="fa fa-print mr-1"></i> Cetak Nota
-                                                            </button></a>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<x-layout.admin-v2 title="Riwayat & Laporan" subtitle="Pesanan yang sudah berhasil diselesaikan">
+
+    {{-- Ringkasan --}}
+    <div class="mb-6 grid gap-4 sm:grid-cols-2">
+        <x-ui.stat label="Pesanan Berhasil" :value="number_format($orders->count(), 0, ',', '.')"
+            icon="fa-circle-check" tone="success" />
+        <x-ui.stat label="Total Pendapatan" value="Rp {{ number_format($revenue, 0, ',', '.') }}"
+            icon="fa-sack-dollar" tone="primary" />
     </div>
+
+    {{-- Unduh laporan --}}
+    <x-ui.card title="Unduh Laporan Penjualan" icon="fa-file-arrow-down"
+        subtitle="Pilih rentang tanggal, lalu unduh laporan dalam format PDF." class="mb-6">
+
+        <form method="GET" action="{{ route('data.riwayat.laporan.pesanan') }}"
+            class="flex flex-wrap items-end gap-4">
+            <div class="min-w-[160px] flex-1">
+                <label for="start_date" class="mb-1.5 block text-sm font-medium text-gray-700">Dari Tanggal</label>
+                <input type="date" name="start_date" id="start_date" required max="{{ now()->format('Y-m-d') }}"
+                    class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30">
+            </div>
+
+            <div class="min-w-[160px] flex-1">
+                <label for="end_date" class="mb-1.5 block text-sm font-medium text-gray-700">Sampai Tanggal</label>
+                <input type="date" name="end_date" id="end_date" required max="{{ now()->format('Y-m-d') }}"
+                    class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30">
+            </div>
+
+            <x-ui.button type="submit" icon="fa-download">Unduh Laporan</x-ui.button>
+        </form>
+    </x-ui.card>
+
+    <x-ui.table placeholder="Cari pesanan atau produk…" emptyTitle="Belum ada pesanan selesai"
+        emptyMessage="Pesanan yang berstatus Berhasil akan tampil di sini.">
+
+        <x-slot:head>
+            <th class="px-4 py-3 font-semibold">Pesanan</th>
+            <th class="px-4 py-3 font-semibold">Produk</th>
+            <th class="px-4 py-3 text-right font-semibold">Total</th>
+            <th class="px-4 py-3 font-semibold">Tanggal</th>
+            <th class="px-4 py-3 text-right font-semibold">Aksi</th>
+        </x-slot:head>
+
+        @foreach ($orders as $order)
+            <tr data-row class="align-top transition-colors hover:bg-gray-50/70">
+                <td class="whitespace-nowrap px-4 py-3 font-mono text-xs text-gray-500">
+                    #{{ Str::upper(Str::limit($order['id'], 8, '')) }}
+                </td>
+
+                <td class="px-4 py-3">
+                    <ul class="space-y-0.5">
+                        @forelse ($order['order_items'] as $item)
+                            <li class="text-sm text-gray-900">
+                                {{ $item['product_variant']['product']['name'] ?? 'Produk dihapus' }}
+                                @if (! empty($item['product_variant']['name_type']))
+                                    <span class="text-gray-500">— {{ $item['product_variant']['name_type'] }}</span>
+                                @endif
+                                <span class="font-semibold text-primary">×{{ $item['quantity'] }}</span>
+                            </li>
+                        @empty
+                            <li class="text-sm italic text-gray-400">Tidak ada rincian item</li>
+                        @endforelse
+                    </ul>
+                </td>
+
+                <td class="whitespace-nowrap px-4 py-3 text-right text-sm font-semibold text-gray-900">
+                    Rp {{ number_format($order['total_price'], 0, ',', '.') }}
+                </td>
+
+                {{-- Diformat di server; skrip lama memformat ulang di browser. --}}
+                <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
+                    {{ \Carbon\Carbon::parse($order['created_at'])->locale('id')->isoFormat('D MMM YYYY') }}
+                    <span class="block text-xs text-gray-400">
+                        {{ \Carbon\Carbon::parse($order['created_at'])->format('H:i') }}
+                    </span>
+                </td>
+
+                <td class="px-4 py-3">
+                    <div class="flex items-center justify-end gap-1.5">
+                        <a href="{{ route('detail.pesanan', ['id' => $order['id']]) }}"
+                            class="inline-flex items-center gap-1.5 rounded-lg bg-primary px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-primary-900">
+                            <i class="fa-solid fa-eye"></i>Detail
+                        </a>
+                        <a href="{{ route('nota.pesanan', ['id' => $order['id']]) }}"
+                            class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary">
+                            <i class="fa-solid fa-print"></i>Nota
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        @endforeach
+    </x-ui.table>
+
 </x-layout.admin-v2>
-
-<script>
-    function formatDateTime(dateString) {
-        const date = new Date(dateString);
-        const dateOptions = {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-        };
-        const timeOptions = {
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric',
-            hour12: false
-        };
-        return date.toLocaleDateString('id-ID', dateOptions) + ', ' + date.toLocaleTimeString('id-ID', timeOptions);
-    }
-
-    document.addEventListener("DOMContentLoaded", function() {
-        document.querySelectorAll("[id^='created-at-']").forEach(element => {
-            element.textContent = formatDateTime(element.textContent);
-        });
-    });
-</script>

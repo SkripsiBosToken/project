@@ -26,7 +26,6 @@ class DatabaseSeeder extends Seeder
         $product_variant_id_1 = Str::uuid()->toString();
         $product_variant_id_2 = Str::uuid()->toString();
         $product_variant_id_3 = Str::uuid()->toString();
-        // $product_variant_id_4 = Str::uuid()->toString();
 
         $role_id_1 = Str::uuid()->toString();
         $role_id_2 = Str::uuid()->toString();

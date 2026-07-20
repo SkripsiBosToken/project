@@ -47,16 +47,28 @@ class GuestController extends Controller
     }
 
     // View
-    public function catalogue_detail(SystemAction $system_action, ProductAction $product_action, $id)
+    public function catalogue_detail(SystemAction $system_action, ProductAction $product_action, $id, $slug = null)
     {
-        $products = [];
         $product = $product_action->getById($id);
+
+        // Produk tidak ada -> 404 sungguhan. Sebelumnya view tetap dirender
+        // dengan $product null sehingga halaman error, dan mesin pencari
+        // mengindeks halaman rusak alih-alih menerima sinyal 404.
+        abort_if(! $product, 404);
+
         $setting = $system_action->get();
-        $data = json_decode($setting['special_product'], true);
-        foreach ($data as $id) {
-            $data = $product_action->getById($id);
-            array_push($products, $data);
+
+        // Variabel loop sebelumnya bernama $id sehingga menimpa parameter
+        // route, dan $data dipakai ulang untuk dua hal berbeda.
+        $specialIds = json_decode($setting['special_product'] ?? '[]', true) ?: [];
+
+        $products = [];
+        foreach ($specialIds as $specialId) {
+            if ($related = $product_action->getById($specialId)) {
+                $products[] = $related;
+            }
         }
+
         return view('customer.catalogue-detail', compact('product', 'products'));
     }
 

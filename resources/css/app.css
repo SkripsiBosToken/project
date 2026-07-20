@@ -5,4 +5,148 @@
 @font-face {
     font-family: 'Poppins';
     src: url('../fonts/Poppins-Regular.ttf') format('truetype');
+    font-display: swap;
+}
+
+@layer base {
+    /* Menyembunyikan elemen Alpine sampai komponennya siap, supaya dropdown
+       dan drawer tidak berkedip muncul saat halaman pertama dimuat. */
+    [x-cloak] {
+        display: none !important;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply bg-gray-50 text-gray-900 antialiased;
+    }
+
+    /* Target sentuh minimum & fokus yang terlihat untuk aksesibilitas. */
+    :focus-visible {
+        @apply outline-2 outline-offset-2 outline-primary;
+    }
+}
+
+@layer components {
+    /* Placeholder saat konten dimuat. */
+    .skeleton {
+        @apply relative overflow-hidden bg-gray-200;
+    }
+
+    .skeleton::after {
+        @apply absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/60 to-transparent;
+        content: '';
+    }
+
+    /* Menyembunyikan scrollbar pada baris yang bisa digeser horizontal. */
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* ------------------------------------------------------------------
+       LAPISAN KOMPATIBILITAS — SEMENTARA
+
+       Shell admin sudah tidak lagi memuat CSS Bootstrap. Beberapa halaman
+       admin (form tambah/detail produk & kategori, detail pelanggan, dan
+       halaman pengaturan) masih memakai markup Bootstrap lama.
+
+       Aturan di bawah memetakan kelas-kelas tersebut ke gaya design system
+       yang baru agar halaman-halaman itu tetap tampil rapi selama proses
+       konversi. HAPUS blok ini setelah semua view admin dikonversi ke
+       komponen <x-ui.*>.
+       ------------------------------------------------------------------ */
+
+    .card {
+        @apply mb-6 rounded-xl border border-gray-200 bg-white shadow-card;
+    }
+
+    .card-header {
+        @apply border-b border-gray-100 px-5 py-4;
+    }
+
+    .card-title {
+        @apply text-base font-bold text-gray-900;
+    }
+
+    .card-body {
+        @apply p-5;
+    }
+
+    .form-group {
+        @apply mb-4;
+    }
+
+    .control-label,
+    .form-group > label {
+        @apply mb-1.5 block text-sm font-medium text-gray-700;
+    }
+
+    .form-control {
+        @apply w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm transition
+               placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30
+               disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500;
+    }
+
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold
+               transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    .btn-sm {
+        @apply px-3 py-1.5 text-xs;
+    }
+
+    .btn-primary {
+        @apply bg-primary text-white hover:bg-primary-900;
+    }
+
+    .btn-secondary {
+        @apply bg-gray-100 text-gray-700 hover:bg-gray-200;
+    }
+
+    .btn-success {
+        @apply bg-success-600 text-white hover:bg-success-700;
+    }
+
+    .btn-info {
+        @apply border border-gray-300 bg-white text-gray-700 hover:border-primary hover:text-primary;
+    }
+
+    .btn-danger {
+        @apply bg-primary-danger text-white hover:bg-red-800;
+    }
+
+    .table {
+        @apply w-full text-left text-sm;
+    }
+
+    .table thead {
+        @apply border-b border-gray-100 bg-gray-50/70 text-xs uppercase tracking-wide text-gray-500;
+    }
+
+    .table th,
+    .table td {
+        @apply px-4 py-3;
+    }
+
+    .table tbody tr {
+        @apply border-b border-gray-100;
+    }
+
+    /* `row`/`col-*` lama dipetakan ke grid sederhana. */
+    .row {
+        @apply grid grid-cols-1 gap-6 lg:grid-cols-2;
+    }
+
+    .row > .col-md-12,
+    .row > .col-lg-12 {
+        @apply lg:col-span-2;
+    }
 }

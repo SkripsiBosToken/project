@@ -53,29 +53,38 @@
                                             <label for="cc-payment" class="control-label mb-1">Address</label>
                                             <input type="text" class="form-control" aria-required="true"
                                                 aria-invalid="false"
-                                                value="{{ json_decode($data['address'], true)['address'] }}" disabled>
+                                                value="{{ json_decode($data['address'] ?? '{}', true)['address'] ?? '-' }}" disabled>
                                         </div>
 
 
                                         <div class="form-group">
                                             <label for="cc-payment" class="control-label mb-1">Address Point</label>
                                             @php
-                                                $officeAddress = [];
-                                                $address = json_decode($data['address'], true);
-                                                $data = [
-                                                    'lat' => (float) $address['latitude'],
-                                                    'lng' => (float) $address['longitude'],
-                                                    'label' => 'Destinasi',
-                                                ];
-                                                array_push($officeAddress, $data);
+                                                // Sebelumnya blok ini menimpa variabel $data (model user)
+                                                // dengan array koordinat, dan mengakses latitude/longitude
+                                                // tanpa guard sehingga error bila alamat belum lengkap.
+                                                $address = json_decode($data['address'] ?? '{}', true) ?: [];
+
+                                                $hasCoordinates = isset($address['latitude'], $address['longitude'])
+                                                    && $address['latitude'] !== ''
+                                                    && $address['longitude'] !== '';
+
+                                                $pinArea = $hasCoordinates
+                                                    ? [[
+                                                        'lat' => (float) $address['latitude'],
+                                                        'lng' => (float) $address['longitude'],
+                                                        'label' => 'Destinasi',
+                                                    ]]
+                                                    : [];
                                             @endphp
 
-                                            @if (is_array($officeAddress))
-                                                <x-map.custom :pinArea="$officeAddress" />
+                                            @if ($hasCoordinates)
+                                                <x-map.custom :pinArea="$pinArea" />
                                                 <p class="text-primary-danger text-sm">*Pencet untuk melihat pada google
                                                     map</p>
                                             @else
-                                                <p>Data lokasi kantor tidak valid atau tidak tersedia.</p>
+                                                <p class="text-sm text-gray-500">Pelanggan ini belum menandai titik lokasi
+                                                    pada alamatnya.</p>
                                             @endif
                                         </div>
 

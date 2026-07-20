@@ -26,14 +26,20 @@
                                 <input type="number" class="form-control" name="phone_number" value="{{ $system['phone_number'] }}">
                             </div>
 
+                            {{-- Didekode sekali dengan guard: kolom JSON yang
+                                 kosong sebelumnya membuat halaman ini error. --}}
+                            @php
+                                $office = json_decode($system['office_address'] ?? '{}', true) ?: [];
+                            @endphp
+
                             <div class="form-group">
                                 <label>Address</label>
-                                <textarea class="form-control" name="address">{{ json_decode($system['office_address'], true)['address'] }}</textarea>
+                                <textarea class="form-control" name="address">{{ $office['address'] ?? '' }}</textarea>
                             </div>
 
                             <div class="form-group">
                                 <label>Kode Pos</label>
-                                <input type="number" class="form-control" name="postal_code" value="{{ json_decode($system['office_address'], true)['postal_code'] }}">
+                                <input type="text" inputmode="numeric" class="form-control" name="postal_code" value="{{ $office['postal_code'] ?? '' }}">
                             </div>
 
                             <div class="form-group">
@@ -45,8 +51,9 @@
                                 </div>
                             </div>
 
-                            <input type="hidden" id="latitude" name="latitude" value="{{ json_decode($system['office_address'], true)['latitude'] }}">
-                            <input type="hidden" id="longitude" name="longitude" value="{{ json_decode($system['office_address'], true)['longitude'] }}">
+                            {{-- Default koordinat diarahkan ke Malang bila belum diatur. --}}
+                            <input type="hidden" id="latitude" name="latitude" value="{{ $office['latitude'] ?? -7.9666 }}">
+                            <input type="hidden" id="longitude" name="longitude" value="{{ $office['longitude'] ?? 112.6326 }}">
 
                             <div class="form-group">
                                 <label for="cc-payment" class="control-label mb-1">Address Point</label>

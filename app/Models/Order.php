@@ -17,7 +17,9 @@ class Order extends Model
         'status',
         'total_price',
         'shipping_address',
-        'shipping_address',
+        // 'shipping_address' sebelumnya tertulis dua kali, sementara
+        // 'transaction_id' justru tidak ada sehingga tidak bisa diisi massal.
+        'transaction_id',
         'user_id'
     ];
 

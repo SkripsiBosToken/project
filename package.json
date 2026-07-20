@@ -1,8 +1,9 @@
 {
     "private": true,
     "scripts": {
-        "dev": "vite --host",
-        "build": "vite build"
+        "dev": "vite",
+        "build": "vite build && npm run clear:hot",
+        "clear:hot": "node -e \"const f='public/hot',s=require('fs');s.existsSync(f)&&s.unlinkSync(f)\""
     },
     "devDependencies": {
         "autoprefixer": "^10.4.20",

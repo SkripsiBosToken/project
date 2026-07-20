@@ -34,6 +34,28 @@ class CartAction
         $data = new Cart();
         $data->user_id = $request['user_id'];
         $data->save();
+        return $data;
+    }
+
+    /**
+     * Menjamin setiap user selalu punya keranjang. Sebelumnya pemanggil
+     * langsung mengakses getByUser(...)[0] sehingga error bila user belum
+     * memiliki baris cart (mis. user hasil seeder atau registrasi lama).
+     */
+    public function firstOrCreateForUser($user_id)
+    {
+        $cart = Cart::with('cart_items.product_variant.product')
+            ->where('user_id', $user_id)
+            ->first();
+
+        if (! $cart) {
+            $cart = new Cart();
+            $cart->user_id = $user_id;
+            $cart->save();
+            $cart->load('cart_items.product_variant.product');
+        }
+
+        return $cart;
     }
 
 }

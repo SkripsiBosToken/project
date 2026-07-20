@@ -29,6 +29,7 @@ class SystemAction
         $data->misi = $request['misi'] ?? $data->misi;
         $data->special_product = $request['special_product'] ?? $data->special_product;
         $data->our_customer = $request['our_customer'] ?? $data->our_customer;
+        $data->our_service = $request['our_service'] ?? $data->our_service;
         $data->our_coverage = $request['our_coverage'] ?? $data->our_coverage;
         $data->social_media = $request['social_media'] ?? $data->social_media;
         $data->office_address = $request['office_address'] ?? $data->office_address;

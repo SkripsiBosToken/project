@@ -20,7 +20,9 @@ class Product_Variant extends Model
         'description',
         'price',
         'stock',
-        'visiblity',
+        // Nama kolom di database adalah "visibility"; typo lama membuat
+        // atribut ini tidak pernah bisa di-mass-assign.
+        'visibility',
         'product_id'
     ];
 

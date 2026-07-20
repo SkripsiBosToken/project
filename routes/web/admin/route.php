@@ -51,6 +51,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
             Route::get('setting/customer', [AdminController::class, 'ourCustomer'])->name('setting.customer');
             Route::put('setting/customer/update', [AdminController::class, 'updateOurCustomer'])->name('system.customer.update');
 
+            Route::get('setting/service', [AdminController::class, 'service'])->name('setting.service');
+            Route::put('setting/service/update', [AdminController::class, 'updateService'])->name('system.service.update');
+
             Route::get('setting/social-media', [AdminController::class, 'socialMedia'])->name('setting.social-media');
             Route::put('setting/social-media/update', [AdminController::class, 'updateSocialMedia'])->name('system.social-media.update');
             

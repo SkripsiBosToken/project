@@ -16,8 +16,11 @@ class System extends Model
         'logo',
         'visi',
         'misi',
-        'special_catering',
+        // Nama kolomnya `special_product`; typo lama membuat atribut ini
+        // tidak pernah bisa di-mass-assign.
+        'special_product',
         'our_customer',
+        'our_service',
         'our_coverage',
         'social_media',
         'office_address',

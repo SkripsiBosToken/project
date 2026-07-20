@@ -47,7 +47,8 @@
                                     <label>Foto Produk</label>
 
                                     <div id="preview-photos-{{ $key }}" class="d-flex flex-wrap gap-2 mb-2">
-                                        @foreach (json_decode($variant['photo']) as $photoIndex => $photo)
+                                        {{-- Guard: kolom photo bisa kosong atau berisi JSON rusak. --}}
+                                        @foreach (json_decode($variant['photo'] ?? '[]', true) ?: [] as $photoIndex => $photo)
                                             <div id="photo-wrapper-{{ $key }}-{{ $photoIndex }}"
                                                 class="position-relative d-inline-block me-2 mb-2 photo-box">
                                                 <img src="{{ $photo }}" class="border border-primary rounded"

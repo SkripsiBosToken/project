@@ -51,12 +51,18 @@
         <div class="header">
             <h2>Nota Pembelian</h2>
             <p><strong>{{$system['name']}}</strong></p>
-            <p>{{ json_decode($system['office_address'], true)['address'] }}</p>
+            {{-- Kolom JSON bisa kosong atau tidak lengkap; mengaksesnya
+                 langsung membuat pembuatan PDF nota gagal. --}}
+            @php
+                $office = json_decode($system['office_address'] ?? '{}', true) ?: [];
+                $shipping = json_decode($order['shipping_address'] ?? '{}', true) ?: [];
+            @endphp
+            <p>{{ $office['address'] ?? '-' }}</p>
             <p>{{ \Carbon\Carbon::parse($order['created_at'])->locale('id')->translatedFormat('d F Y, H:i') }}</p>
         </div>
 
-        <p><strong>Pelanggan:</strong> {{ $order['user']['name'] }}</p>
-        <p><strong>Alamat:</strong> {{ json_decode($order['shipping_address'], true)['address'] }}</p>
+        <p><strong>Pelanggan:</strong> {{ $order['user']['name'] ?? '-' }}</p>
+        <p><strong>Alamat:</strong> {{ $shipping['address'] ?? '-' }}</p>
 
         <table class="table">
             <thead>
@@ -72,8 +78,8 @@
                 @foreach ($order['order_items'] as $key => $item)
                     <tr>
                         <td>{{ $key + 1 }}</td>
-                        <td>{{ $item['product_variant']['product']['name'] }}
-                            {{ $item['product_variant']['name_type'] }}</td>
+                        <td>{{ $item['product_variant']['product']['name'] ?? 'Produk dihapus' }}
+                            {{ $item['product_variant']['name_type'] ?? '' }}</td>
                         <td>{{ $item['quantity'] }}</td>
                         <td>Rp {{ number_format($item['price'], 0, ',', '.') }}</td>
                         <td>Rp {{ number_format($item['quantity'] * $item['price'], 0, ',', '.') }}</td>

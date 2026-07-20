@@ -1,40 +1,86 @@
 @php
-    $setting = app(\App\Http\Controllers\GuestController::class)->setting();
+    // $setting dibagikan lewat view composer di AppServiceProvider.
+    // Guard null: kolom JSON bisa kosong pada instalasi baru dan sebelumnya
+    // membuat foreach di bawah error.
+    $socials = json_decode($setting['social_media'] ?? '[]', true) ?: [];
+    $office = json_decode($setting['office_address'] ?? '{}', true) ?: [];
+    $phone = $setting['phone_number'] ?? '';
+    $whatsapp = preg_replace('/^0/', '62', $phone);
 @endphp
 
-<div class="bg-primary-gray_light py-8 md:py-16 px-6 md:px-48 font-poppins">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-primary-gray">
-        <div>
-            <h2 class="text-lg font-semibold text-primary">KusukaCatering</h2>
-        </div>
+<footer class="mt-16 border-t border-gray-200 bg-white font-poppins">
+    <div class="container mx-auto px-4 py-12 md:px-0">
+        <div class="grid gap-8 md:grid-cols-4">
 
-        <div>
-            <h3 class="font-semibold text-primary">Legal</h3>
-            <ul class="mt-2 space-y-1 text-sm">
-                <li><a href="#" class="hover:underline">Privacy policy</a></li>
-                <li><a href="#" class="hover:underline">Term and conditions</a></li>
-                <li><a href="#" class="hover:underline">FAQ</a></li>
-            </ul>
-        </div>
+            {{-- Brand --}}
+            <div class="md:col-span-1">
+                <img src="{{ $setting['logo'] ?? '' }}" alt="{{ $setting['name'] ?? 'Kusuka Catering' }}"
+                    class="h-14 w-auto object-contain">
+                <p class="mt-3 text-sm leading-relaxed text-gray-500">
+                    Catering Malang dengan menu lezat, fresh, dan siap diantar ke lokasi Anda.
+                </p>
+            </div>
 
-        <div>
-            <h3 class="font-semibold text-primary">Contact Us</h3>
-            <div class="flex items-center space-x-3 mt-2">
-                @foreach (json_decode($setting['social_media'], true) as $item)
-                    <a href="{{$item['href']}}" class="text-primary hover:text-white">
-                        <img src="{{ $item['logo'] }}"
-                            class="w-4 md:w-8 h-4 md:h-8 object-contain">
+            {{-- Navigasi --}}
+            <div>
+                <h3 class="text-sm font-bold uppercase tracking-wide text-gray-900">Jelajahi</h3>
+                <ul class="mt-3 space-y-2 text-sm">
+                    @foreach ([['home', 'Beranda'], ['catalogue', 'Katalog'], ['about', 'Tentang Kami'], ['contact', 'Kontak']] as [$r, $l])
+                        <li>
+                            <a href="{{ route($r) }}"
+                                class="text-gray-500 transition-colors hover:text-primary">{{ $l }}</a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+
+            {{-- Legal --}}
+            <div>
+                <h3 class="text-sm font-bold uppercase tracking-wide text-gray-900">Informasi</h3>
+                <ul class="mt-3 space-y-2 text-sm">
+                    @foreach (['Kebijakan Privasi', 'Syarat & Ketentuan', 'FAQ'] as $item)
+                        <li>
+                            <a href="#" class="text-gray-500 transition-colors hover:text-primary">{{ $item }}</a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+
+            {{-- Kontak --}}
+            <div>
+                <h3 class="text-sm font-bold uppercase tracking-wide text-gray-900">Hubungi Kami</h3>
+
+                @if ($phone)
+                    <a href="https://wa.me/{{ $whatsapp }}" target="_blank" rel="noopener"
+                        class="mt-3 flex items-start gap-2.5 text-sm text-gray-500 transition-colors hover:text-primary">
+                        <i class="fa-brands fa-whatsapp mt-0.5 text-base"></i>
+                        <span>{{ $phone }}</span>
                     </a>
-                @endforeach
+                @endif
+
+                @if (! empty($office['address']))
+                    <p class="mt-2 flex items-start gap-2.5 text-sm leading-relaxed text-gray-500">
+                        <i class="fa-solid fa-location-dot mt-0.5"></i>
+                        <span>{{ $office['address'] }}</span>
+                    </p>
+                @endif
+
+                @if ($socials)
+                    <div class="mt-4 flex items-center gap-3">
+                        @foreach ($socials as $item)
+                            <a href="{{ $item['href'] ?? '#' }}" target="_blank" rel="noopener"
+                                class="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 transition-colors hover:bg-primary-50"
+                                aria-label="Media sosial">
+                                <img src="{{ $item['logo'] ?? '' }}" alt="" class="h-4 w-4 object-contain">
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
 
-        <div>
-            <h3 class="font-semibold text-primary">Getting Touch</h3>
-            <p class="mt-1 text-sm">{{ $setting['phone_number'] }}</p>
-            <p class="mt-1 text-sm">{{ json_decode($setting['office_address'], true)['address'] }}</p>
+        <div class="mt-10 border-t border-gray-100 pt-6 text-center text-xs text-gray-400">
+            &copy; {{ date('Y') }} {{ $setting['name'] ?? 'Kusuka Catering' }}. Seluruh hak cipta dilindungi.
         </div>
     </div>
-</div>
-
-<script src="https://kit.fontawesome.com/YOUR_KIT_CODE.js" crossorigin="anonymous"></script>
+</footer>

@@ -1,101 +1,211 @@
-<x-layout.customer>
-    <div class="my-10 md:my-14" x-data="{ cartItems: {{ json_encode($cart['cart_items']) }} }">
-        <h1 class="text-2xl font-semibold mb-4">Carts / Wishlist</h1>
+<x-layout.customer title="Keranjang | Kusuka Catering" :noindex="true">
 
-        <div class="flex flex-col md:flex-row gap-4">
-            <div class="md:w-3/4">
-                <template x-for="item in cartItems" x-bind:key="item.id">
-                    <div class="mb-4 p-4 border rounded-lg shadow-md"
-                        :class="{ 'opacity-60': item.product_variant.deleted_at }">
-                        <div class="flex items-center">
-                            <img :src="item.product_variant.deleted_at ? '/placeholder.jpg' : JSON.parse(item.product_variant
-                                .photo)[0]"
-                                :alt="item.product_variant.product.name" class="w-16 h-16 object-cover rounded-lg mr-4">
+    <div class="my-8 md:my-12" x-data="cartPage({
+        items: {{ Illuminate\Support\Js::from($cart['cart_items']) }},
+    })">
 
-                            <div>
-                                <h2 class="font-semibold"
-                                    x-text="item.product_variant.product.name + ' - ' + item.product_variant.name_type">
-                                </h2>
+        <h1 class="mb-6 text-2xl font-bold text-gray-900 md:text-3xl">Keranjang Belanja</h1>
 
-                                <template x-if="item.product_variant.deleted_at">
-                                    <p class="text-red-500 text-sm italic">Produk telah dihapus</p>
-                                </template>
-                                <template x-if="!item.product_variant.deleted_at">
-                                    <p class="text-primary-gray"
-                                        x-text="'Rp. ' + (item.product_variant.price).toLocaleString('id-ID')"></p>
-                                </template>
-                            </div>
+        {{-- Keranjang kosong --}}
+        <template x-if="!items.length">
+            <div class="rounded-xl border border-gray-200 bg-white">
+                <div class="flex flex-col items-center justify-center px-6 py-16 text-center">
+                    <div class="flex h-16 w-16 items-center justify-center rounded-full bg-primary-50">
+                        <i class="fa-solid fa-cart-shopping text-2xl text-primary-300"></i>
+                    </div>
+                    <h2 class="mt-4 text-base font-semibold text-gray-900">Keranjang Anda masih kosong</h2>
+                    <p class="mt-1.5 max-w-sm text-sm text-gray-500">
+                        Yuk jelajahi menu kami dan temukan hidangan favorit Anda.
+                    </p>
+                    <a href="{{ route('catalogue') }}"
+                        class="mt-5 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-900">
+                        Lihat Katalog <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </a>
+                </div>
+            </div>
+        </template>
 
-                            <div class="ml-auto flex items-center gap-x-2">
-                                <x-button.custom class="p-0.5 text-sm md:text-sm bg-primary-danger"
-                                    x-bind:href="'/cart/delete/' + item.id">X</x-button.custom>
-                                <div class="border border-gray-300 rounded-md">
-                                    <button :disabled="item.product_variant.deleted_at"
-                                        @click="if (item.qty > 1) item.qty--"
-                                        class="px-3 py-1 text-primary border-r border-primary-gray">−</button>
-                                    <span class="px-4 py-1 text-lg font-semibold" x-text="item.qty"></span>
-                                    <button :disabled="item.product_variant.deleted_at"
-                                        @click="if (item.qty < item.product_variant.stock) item.qty++"
-                                        class="px-3 py-1 text-primary border-l border-primary-gray">+</button>
+        <template x-if="items.length">
+            <div class="grid gap-6 lg:grid-cols-3">
+
+                {{-- Daftar item --}}
+                <div class="space-y-3 lg:col-span-2">
+                    <template x-for="item in items" :key="item.id">
+                        <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-card transition"
+                            :class="isUnavailable(item) && 'opacity-60'">
+
+                            <div class="flex gap-4">
+                                <img :src="photoOf(item)" :alt="nameOf(item)"
+                                    class="h-20 w-20 flex-shrink-0 rounded-lg border border-gray-100 object-cover"
+                                    onerror="this.src='/placeholder.jpg'">
+
+                                <div class="flex min-w-0 flex-1 flex-col">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="min-w-0">
+                                            <h3 class="truncate text-sm font-semibold text-gray-900 md:text-base"
+                                                x-text="nameOf(item)"></h3>
+                                            <p class="mt-0.5 text-sm text-primary"
+                                                x-text="rupiah(item.product_variant.price)"></p>
+                                        </div>
+
+                                        <a :href="'/cart/delete/' + item.id"
+                                            @click="return confirm('Hapus item ini dari keranjang?')"
+                                            class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-primary-danger"
+                                            aria-label="Hapus item">
+                                            <i class="fa-solid fa-trash-can text-sm"></i>
+                                        </a>
+                                    </div>
+
+                                    <template x-if="item.product_variant.deleted_at">
+                                        <p class="mt-1 text-xs font-medium text-primary-danger">
+                                            <i class="fa-solid fa-circle-exclamation mr-1"></i>Produk sudah tidak tersedia
+                                        </p>
+                                    </template>
+
+                                    <template x-if="!item.product_variant.deleted_at && outOfStock(item)">
+                                        <p class="mt-1 text-xs font-medium text-primary-danger">
+                                            <i class="fa-solid fa-circle-exclamation mr-1"></i>Stok habis
+                                        </p>
+                                    </template>
+
+                                    <div class="mt-auto flex items-end justify-between gap-3 pt-3">
+                                        <div class="flex items-center rounded-lg border border-gray-300">
+                                            <button type="button" @click="decrease(item)"
+                                                :disabled="isUnavailable(item) || item.qty <= 1"
+                                                class="flex h-8 w-8 items-center justify-center text-primary transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+                                                aria-label="Kurangi">−</button>
+                                            <span class="w-10 text-center text-sm font-semibold" x-text="item.qty"></span>
+                                            <button type="button" @click="increase(item)"
+                                                :disabled="isUnavailable(item) || item.qty >= Number(item.product_variant.stock)"
+                                                class="flex h-8 w-8 items-center justify-center text-primary transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+                                                aria-label="Tambah">+</button>
+                                        </div>
+
+                                        <p class="text-sm font-bold text-gray-900"
+                                            x-text="rupiah(item.product_variant.price * item.qty)"></p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </template>
-
-            </div>
-
-            <div class="md:w-1/4 md:pl-4">
-                <div class="p-4 border rounded-lg shadow-md">
-                    <h2 class="font-semibold mb-4">Subtotal</h2>
-
-                    <template x-for="item in cartItems" x-bind:key="item.id">
-                        <template x-if="!item.product_variant.deleted_at">
-                            <div class="flex justify-between mb-2">
-                                <span
-                                    x-text="item.product_variant.product.name + ' - ' + item.product_variant.name_type"></span>
-                                <span>Rp <span
-                                        x-text="(item.product_variant.price * item.qty).toLocaleString('id-ID')"></span></span>
-                            </div>
-                        </template>
                     </template>
+                </div>
 
-
-                    <x-form.custom action="{{ route('checkout') }}" method="POST">
+                {{-- Ringkasan --}}
+                <aside class="lg:col-span-1">
+                    <form method="POST" action="{{ route('checkout') }}" class="lg:sticky lg:top-24">
                         @csrf
                         <input type="hidden" name="type" value="buy-cart">
-                        <input type="hidden" name="items" x-bind:value="getItems(cartItems)">
-                        <div class="flex justify-between mt-4 font-semibold">
-                            <span>Total payment bill</span>
-                            <span>Rp <span x-text="(getSubtotal(cartItems)).toLocaleString('id-ID')"></span></span>
+                        <input type="hidden" name="items" :value="serializedItems">
+
+                        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-card">
+                            <h2 class="text-base font-bold text-gray-900">Ringkasan</h2>
+
+                            <ul class="mt-4 space-y-2 text-sm">
+                                <template x-for="item in availableItems" :key="item.id">
+                                    <li class="flex justify-between gap-3">
+                                        <span class="truncate text-gray-500"
+                                            x-text="nameOf(item) + ' × ' + item.qty"></span>
+                                        <span class="whitespace-nowrap text-gray-900"
+                                            x-text="rupiah(item.product_variant.price * item.qty)"></span>
+                                    </li>
+                                </template>
+                            </ul>
+
+                            <template x-if="unavailableCount > 0">
+                                <p class="mt-3 rounded-lg bg-warning-50 p-2.5 text-xs text-warning-700">
+                                    <i class="fa-solid fa-circle-info mr-1"></i>
+                                    <span x-text="unavailableCount"></span> item tidak tersedia dan tidak dihitung.
+                                </p>
+                            </template>
+
+                            <div class="mt-4 flex justify-between border-t border-gray-100 pt-4 text-lg font-bold">
+                                <span>Total</span>
+                                <span class="text-primary" x-text="rupiah(subtotal)"></span>
+                            </div>
+
+                            <p class="mt-1 text-xs text-gray-400">Ongkos kirim dihitung di halaman berikutnya.</p>
+
+                            <button type="submit" :disabled="!availableItems.length"
+                                class="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 text-sm font-semibold text-white transition hover:bg-primary-900 disabled:cursor-not-allowed disabled:opacity-50">
+                                Lanjut ke Checkout <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </button>
+
+                            <a href="{{ route('catalogue') }}"
+                                class="mt-3 block text-center text-sm font-semibold text-primary hover:underline">
+                                Lanjut belanja
+                            </a>
                         </div>
-                        <button type="submit" class="w-full bg-primary text-white py-2 rounded-lg mt-4"
-                            :class="{ 'opacity-50 cursor-not-allowed': getSubtotal(cartItems) === 0 }"
-                            :disabled="getSubtotal(cartItems) === 0">
-                            Check Out
-                        </button>
-                    </x-form.custom>
-                </div>
+                    </form>
+                </aside>
             </div>
-        </div>
+        </template>
     </div>
-    <script>
-        function getSubtotal(items) {
-            return items
-                .filter(item => !item.product_variant.deleted_at)
-                .map(item => item.product_variant.price * item.qty)
-                .reduce((prev, next) => prev + next, 0);
-        }
 
+    @push('scripts')
+        <script>
+            function cartPage(config) {
+                return {
+                    items: config.items,
 
-        function getItems(items) {
-            return JSON.stringify(items
-                .filter(item => !item.product_variant.deleted_at)
-                .map(item => ({
-                    product_variant_id: item.product_variant.id,
-                    qty: item.qty
-                }))
-            );
-        }
-    </script>
+                    // Item yang produknya dihapus atau stoknya habis tidak
+                    // boleh ikut dihitung maupun dikirim ke checkout.
+                    isUnavailable(item) {
+                        return !!item.product_variant.deleted_at || this.outOfStock(item);
+                    },
+
+                    outOfStock(item) {
+                        return Number(item.product_variant.stock) <= 0;
+                    },
+
+                    get availableItems() {
+                        return this.items.filter(item => !this.isUnavailable(item));
+                    },
+
+                    get unavailableCount() {
+                        return this.items.length - this.availableItems.length;
+                    },
+
+                    get subtotal() {
+                        return this.availableItems.reduce(
+                            (sum, item) => sum + item.product_variant.price * item.qty, 0
+                        );
+                    },
+
+                    get serializedItems() {
+                        return JSON.stringify(this.availableItems.map(item => ({
+                            product_variant_id: item.product_variant.id,
+                            qty: item.qty,
+                        })));
+                    },
+
+                    increase(item) {
+                        if (item.qty < Number(item.product_variant.stock)) item.qty++;
+                    },
+
+                    decrease(item) {
+                        if (item.qty > 1) item.qty--;
+                    },
+
+                    nameOf(item) {
+                        return `${item.product_variant.product?.name ?? 'Produk'} — ${item.product_variant.name_type}`;
+                    },
+
+                    photoOf(item) {
+                        try {
+                            return JSON.parse(item.product_variant.photo)[0] ?? '/placeholder.jpg';
+                        } catch (e) {
+                            return '/placeholder.jpg';
+                        }
+                    },
+
+                    rupiah(value) {
+                        return new Intl.NumberFormat('id-ID', {
+                            style: 'currency', currency: 'IDR',
+                            minimumFractionDigits: 0, maximumFractionDigits: 0,
+                        }).format(value);
+                    },
+                };
+            }
+        </script>
+    @endpush
 </x-layout.customer>
