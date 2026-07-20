@@ -9,7 +9,26 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    env:
+      DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
+      DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+
     steps:
+      # Gagal lebih awal dengan pesan jelas kalau secret belum diset,
+      # daripada curl error "No host part in the URL" yang membingungkan.
+      - name: Cek secret deploy
+        run: |
+          missing=0
+          if [ -z "$DEPLOY_URL" ]; then
+            echo "::error::Secret DEPLOY_URL belum diset (Settings > Secrets and variables > Actions)."
+            missing=1
+          fi
+          if [ -z "$DEPLOY_TOKEN" ]; then
+            echo "::error::Secret DEPLOY_TOKEN belum diset (Settings > Secrets and variables > Actions)."
+            missing=1
+          fi
+          [ "$missing" -eq 0 ] || exit 1
+
       - uses: actions/checkout@v5
 
       - uses: actions/setup-node@v5
@@ -37,12 +56,12 @@ jobs:
       - name: Upload & ekstrak ke server
         run: |
           curl --silent --show-error --fail-with-body \
-            -X POST "${{ secrets.DEPLOY_URL }}?action=upload" \
-            -H "X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}" \
+            -X POST "$DEPLOY_URL?action=upload" \
+            -H "X-Deploy-Token: $DEPLOY_TOKEN" \
             -F "package=@package.zip"
 
       - name: Jalankan migrasi database
         run: |
           curl --silent --show-error --fail-with-body \
-            -X POST "${{ secrets.DEPLOY_URL }}?action=migrate" \
-            -H "X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}"
+            -X POST "$DEPLOY_URL?action=migrate" \
+            -H "X-Deploy-Token: $DEPLOY_TOKEN"
