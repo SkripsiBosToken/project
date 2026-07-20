@@ -126,7 +126,7 @@ class RedirectLoopTest extends TestCase
             ->from(url('/checkout'))
             ->post('/checkout/payment', [
                 'type' => 'buy-cart',
-                'payment_type' => 'bca',
+                'payment_type' => 'bni',
                 'item_details' => '[]',
             ]);
 

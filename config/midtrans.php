@@ -68,8 +68,15 @@ return [
     |
     | Dipakai untuk memvalidasi input `payment_type` dari form checkout.
     |
+    | BCA sengaja tidak diikutkan: channel VA BCA belum diaktifkan Midtrans
+    | untuk akun merchant ini (cek dashboard Midtrans > Preferensi Snap >
+    | Daftar Bank), sehingga setiap transaksi BCA otomatis ditolak dengan
+    | "Payment channel is not activated". Tambahkan kembali 'bca' di sini
+    | dan di resources/views/customer/checkout.blade.php setelah Midtrans
+    | mengaktifkannya.
+    |
     */
 
-    'payment_types' => ['bca', 'bni', 'bri', 'permata', 'cimb', 'qris'],
+    'payment_types' => ['bni', 'bri', 'permata', 'cimb', 'qris'],
 
 ];

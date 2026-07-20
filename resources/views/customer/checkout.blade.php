@@ -1,6 +1,8 @@
 @php
+    // BCA tidak ditawarkan: channel VA-nya belum diaktifkan Midtrans untuk
+    // akun ini (lihat catatan di config/midtrans.php). Tambahkan kembali
+    // setelah diaktifkan.
     $paymentMethods = [
-        ['value' => 'bca', 'label' => 'BCA Virtual Account', 'desc' => 'Transfer via ATM, m-BCA, atau KlikBCA'],
         ['value' => 'bni', 'label' => 'BNI Virtual Account', 'desc' => 'Transfer via ATM atau BNI Mobile'],
         ['value' => 'bri', 'label' => 'BRI Virtual Account', 'desc' => 'Transfer via ATM atau BRImo'],
         ['value' => 'permata', 'label' => 'Permata Virtual Account', 'desc' => 'Transfer via ATM atau PermataMobile'],
@@ -197,7 +199,7 @@
                 return {
                     items: config.items,
                     shippingCost: config.shippingCost,
-                    paymentType: 'bca',
+                    paymentType: 'bni',
                     submitting: false,
 
                     get subtotal() {

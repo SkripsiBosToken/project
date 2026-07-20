@@ -141,17 +141,24 @@ class MidtransAction
 
     public function chargeTransaction($request): array
     {
-        $orderId = $request['transaction_details']['order_id'] ?? null;
+        // Hanya bagian teknis yang dicatat (bukan customer_details/item_details),
+        // supaya data pribadi pelanggan tidak ikut tersimpan permanen di log
+        // setiap kali charge gagal.
+        $requestSummary = [
+            'order_id' => $request['transaction_details']['order_id'] ?? null,
+            'payment_type' => $request['payment_type'] ?? null,
+            'bank' => $request['bank_transfer']['bank'] ?? null,
+            'gross_amount' => $request['transaction_details']['gross_amount'] ?? null,
+        ];
 
         $response = $this->send(
             fn (PendingRequest $client) => $client->post($this->endpoint . 'v2/charge', $request),
             'charge',
-            ['order_id' => $orderId]
+            $requestSummary
         );
 
         if (! $this->isSuccessful($response)) {
-            Log::error('Midtrans charge gagal', [
-                'order_id' => $orderId,
+            Log::error('Midtrans charge gagal', $requestSummary + [
                 'status_code' => $response['status_code'] ?? null,
                 'status_message' => $response['status_message'] ?? null,
             ]);
